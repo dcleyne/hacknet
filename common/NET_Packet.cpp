@@ -63,6 +63,8 @@ netMetaPacket::NetInventoryItem( netInventoryItem &packet )
 {
 	ObjDescription( packet.object );
 	Uint8( packet.inventorySlot );
+
+	return (!m_error);
 }
 
 bool

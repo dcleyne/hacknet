@@ -172,7 +172,7 @@ class netMetaPacket
 {
 protected:
 	char			*m_buffer;
-	char			*m_bufferPoint;			// we're we're currently looking in the buffer
+	char			*m_bufferPoint;			// where we're currently looking in the buffer
 
 	unsigned long		m_bufferLength;			// how long the buffer actually is.
 	unsigned long   	m_bufferDistance;		// how much we've read/written to the buffer already

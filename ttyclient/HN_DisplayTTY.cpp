@@ -7,6 +7,7 @@
     #error "No curses library found!"
   #endif
 #endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -388,6 +389,7 @@ hnDisplayTTY::HandleKeypressInventorySelect( int commandKey )
 						}
 						else
 							TextMessage("You can't eat that!");
+						break;
 					case ISM_Drop:
 						m_mode = MODE_Normal;
 						DropCommand(inventorySelected);
@@ -1077,7 +1079,7 @@ hnDisplayTTY::DrawObjectArrayFiltered(objDescription *objects,uint8 objectCount,
 		
 		for ( int i = 0; i < objectCount; i++ )
 		{
-			if ( objects[i].count > 0 && ((flagFilter==0) || objects[i].flags & flagFilter) && objRegistry::GetInstance()->GetType(objects[i].itemID) == categoryValue[j] )
+			if ( objects[i].count > 0 && ((flagFilter==0) || (objects[i].flags & flagFilter)) && objRegistry::GetInstance()->GetType(objects[i].itemID) == categoryValue[j] )
 			{
 				if ( !somethingInThisCategory && drawheaders )
 				{

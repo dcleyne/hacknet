@@ -131,7 +131,7 @@ objRegistry::GetObjectDescriptionText(const objDescription &desc, char *buffer, 
 			snprintf(adjective, NAMEBUFFER_LEN, " of %s", scrap );
 			break;
 		default:
-			snprintf(name, NAMEBUFFER_LEN, scrap);
+			snprintf(name, NAMEBUFFER_LEN, "%s", scrap);
 			break;
 	}
 	
