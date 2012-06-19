@@ -25,7 +25,7 @@ hnGroup::hnGroup( int maxPlayers ):
 	//  NOT DELETE THEM IN OUR DESTRUCTOR.
 	//---------------------------------------------------------
 	
-	m_player = new (hnPlayer *)[m_maxPlayerCount];
+	m_player = new hnPlayer*[m_maxPlayerCount];
 
 	for ( int i = 0; i < m_maxPlayerCount; i++ )
 		m_player[i] = NULL;
@@ -315,12 +315,12 @@ hnGroupManager::hnGroupManager( int maxPlayers ):
 	m_group(NULL),
 	m_maxGroupCount(maxPlayers)
 {
-	m_group = new (hnGroup *)[m_maxGroupCount];
+	m_group = new hnGroup*[m_maxGroupCount];
 	
 	for ( int i = 0; i < m_maxGroupCount; i++ )
 		m_group[i] = new hnGroup(maxPlayers);
 
-	m_player = new (hnPlayer *)[m_maxGroupCount];
+	m_player = new hnPlayer*[m_maxGroupCount];
 	for ( int i = 0; i < m_maxGroupCount; i++ )
 		m_player[i] = NULL;
 }

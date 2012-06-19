@@ -41,7 +41,7 @@ hnDungeon::hnDungeon(int levelCount, int width, int height):
 	m_levelMap(NULL),
 	m_levelCount(levelCount)
 {
-	m_levelMap = new (mapBase *)[levelCount];
+	m_levelMap = new mapBase*[levelCount];
 	for ( int i = 0; i < levelCount; i++ )
 	{
 		// make Hack-style maps for now.

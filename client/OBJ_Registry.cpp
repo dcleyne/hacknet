@@ -10,8 +10,8 @@ objRegistry * objRegistry::s_instance = NULL;
 objRegistry::objRegistry(uint16 objectCount):
 	m_nameCount(objectCount)
 {
-	m_objectName = new (char *)[m_nameCount];
-	m_objectType = new (objType)[m_nameCount];
+	m_objectName = new char*[m_nameCount];
+	m_objectType = new objType[m_nameCount];
 
 	for( int i = 0; i < m_nameCount; i++ )
 	{
@@ -131,7 +131,7 @@ objRegistry::GetObjectDescriptionText(const objDescription &desc, char *buffer, 
 			snprintf(adjective, NAMEBUFFER_LEN, " of %s", scrap );
 			break;
 		default:
-			name = scrap;
+			snprintf(name, NAMEBUFFER_LEN, scrap);
 			break;
 	}
 	

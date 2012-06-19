@@ -219,7 +219,7 @@ netMetaPacket::MapUpdateBBox( netMapUpdateBBox &packet )
 		packet.wall = new sint16[nTiles];
 		packet.entityType = new sint8[nTiles];		
 		packet.objectCount = new uint16[nTiles];
-		packet.object = new (objDescription *)[nTiles];
+		packet.object = new objDescription*[nTiles];
 	}
 	
 	for ( int i = 0; i < nTiles; i++ )

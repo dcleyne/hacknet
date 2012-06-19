@@ -1,3 +1,4 @@
+#include <cmath>
 #include <stdio.h>
 #include <assert.h>
 #include "MAP_Base.h"

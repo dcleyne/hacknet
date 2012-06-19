@@ -90,7 +90,7 @@ hnDisplay::DungeonReset( sint8 levelCount )
 	}
 
 	m_levelCount = levelCount;
-	m_map = new (mapClient *)[m_levelCount];
+	m_map = new mapClient*[m_levelCount];
 	
 	for ( int i = 0; i < m_levelCount; i++ )
 		m_map[i] = NULL;

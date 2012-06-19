@@ -24,7 +24,7 @@ hnPlayer::hnPlayer( int playerID, const hnPoint &where ):
 	m_spellPointsChanged(true)
 {
 	m_mapCount = hnDungeon::GetInstance()->GetLevelCount();
-	m_map = new (mapClient *)[m_mapCount];
+	m_map = new mapClient*[m_mapCount];
 
 	m_entity = new entHuman( where, this );
 //	Ever wanted to play as a Grid Bug?  Comment out the line above and 

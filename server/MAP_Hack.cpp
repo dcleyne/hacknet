@@ -7,6 +7,7 @@
 #include "OBJ_Base.h"
 
 #include <stdio.h>
+#include <cstdlib>
 
 #define min(x,y) ( (x>y)?y:x )
 #define max(x,y) ( (x<y)?y:x )
