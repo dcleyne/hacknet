@@ -28,7 +28,7 @@
 netServer * netServer::s_instance = NULL;
 
 void
-netServer::Startup()
+netServer::Startup(std::string basePath, std::string logPath, int playerPort, int adminPort)
 {
 	assert( s_instance == NULL );
 	s_instance = new netServer;

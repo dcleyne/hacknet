@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <string>
 #include "HN_Game.h"
 #include "HN_Random.h"
 #include "NET_Server.h"
@@ -14,6 +15,11 @@ int main( int argc, char *argv[] )
 	bool legalArgs = true;
 	bool useGroups = false;
 
+	std::string basePath;
+	std::string logPath;
+	int playerPort;
+	int adminPort;
+
 	if ( argc > 1 )
 	{
 		for ( int i = 1; i < argc; i++ )
@@ -25,14 +31,29 @@ int main( int argc, char *argv[] )
 				useGroups = true;
 			}
 			else
-				legalArgs = false;
+			{
+				// Have a look to see if it is the base directory
+				std::string fullArg(argv[i]);
+				size_t iIndex = fullArg.rfind("=");
+				if(iIndex != std::string::npos && fullArg.length() >= 1)
+				{
+					std::string arg = fullArg.substr(0, fullArg.length() - iIndex - 1);
+					std::string val = fullArg.substr(iIndex + 1, fullArg.length() - iIndex - 1);
+				}
+			}
 		}
+	}
+
+	// If any of the required information is missing
+	if (basePath.compare("") == 0 || logPath.compare("") == 0 || playerPort == 0 || adminPort == 0)
+	{
+		legalArgs = false;
 	}
 
 	if ( !legalArgs )
 	{
 		printf("HackNet Server version %s\n", VERSION );
-		printf("Usage: hacknetd [--with-groups]\n");
+		printf("Usage: hacknetd --base-path=<dir for save files> --log-path=<path for log files> --player-port=<port number for player connections> --admin-port<port number for admin connections> [--with-groups]\n");
 		exit(1);
 	}
 
@@ -51,7 +72,7 @@ int main( int argc, char *argv[] )
 	if ( game )
 	{
 		printf("Starting server...\n");
-		netServer::Startup();
+		netServer::Startup(basePath, logPath, playerPort, adminPort);
 		netServer *server = netServer::GetInstance();
 		
 		server->Go();

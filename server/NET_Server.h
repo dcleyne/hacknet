@@ -5,6 +5,7 @@
 //
 //  (Game) -> (netServer) -> [internet] -> (netClient) -> (Client)
 
+#include <string>
 #include "HN_Enum.h"
 #include "HN_Types.h"
 #include "HN_Config_Server.h"
@@ -39,20 +40,25 @@ class netSocketThread;
 class netServer
 {
 	friend class netSocketThread;
+
+	static netServer* s_instance;
+
+	hnGame*	m_game;
 	
-	hnGame *		m_game;
+	int	m_socket;
+	sockaddr_in* m_localAddress;
 	
-	int			m_socket;
-	sockaddr_in *		m_localAddress;
+	clientData m_client[MAX_CLIENTS];				// socket fds for all our clients
+	int	m_clientCount;					// how many clients have we got?
 	
-	clientData		m_client[MAX_CLIENTS];				// socket fds for all our clients
-	int			m_clientCount;					// how many clients have we got?
+	netMetaPacketOutput* m_metaPacket;
+	char m_buffer[MAX_META_PACKET_SIZE];
+	int	m_packetClientID;				// client we're currently making a metapacket for
 	
-	netMetaPacketOutput *	m_metaPacket;
-	char			m_buffer[MAX_META_PACKET_SIZE];
-	int			m_packetClientID;				// client we're currently making a metapacket for
-	
-	static netServer *	s_instance;
+	std::string m_BasePath; // path to the folder where the state files are to be kept.
+	std::string m_LogPath; // path to the folder where the log files are placed
+	int m_PlayerPort; // Port number the players will connect to
+	int m_AdminPort; // Port number the admins will connect to
 	
 	
 protected:
@@ -61,7 +67,7 @@ protected:
 	void			StartServer();
 	bool			ProcessClientPacket(int clientID, char *buffer, short bufferLength); // false == invalid packet, so kill the connection.
 public:
-	static void		Startup();
+	static void		Startup(std::string basePath, std::string logPath, int playerPort, int adminPort);
 	static void		Shutdown();
 	static netServer * 	GetInstance();
 	
