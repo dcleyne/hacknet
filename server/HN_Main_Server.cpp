@@ -17,9 +17,7 @@ int main( int argc, char *argv[] )
 	bool useGroups = false;
 
 	std::string basePath;
-	std::string logPath;
-	int playerPort;
-	int adminPort;
+	int port;
 
 	if ( argc > 1 )
 	{
@@ -41,21 +39,13 @@ int main( int argc, char *argv[] )
 					std::string arg = fullArg.substr(0, iIndex);
 					std::string val = fullArg.substr(iIndex + 1, fullArg.length() - iIndex - 1);
 
-					if (arg.compare("--base-path") == 0)
+					if (arg.compare("--path") == 0)
 					{
 						basePath = val;
 					}
-					if (arg.compare("--log-path") == 0)
+					if (arg.compare("--port") == 0)
 					{
-						logPath = val;
-					}
-					if (arg.compare("--player-port") == 0)
-					{
-						playerPort = atoi(val.c_str());
-					}
-					if (arg.compare("--admin-port") == 0)
-					{
-						adminPort = atoi(val.c_str());
+						port = atoi(val.c_str());
 					}
 				}
 			}
@@ -63,7 +53,7 @@ int main( int argc, char *argv[] )
 	}
 
 	// If any of the required information is missing
-	if (basePath.compare("") == 0 || logPath.compare("") == 0 || playerPort == 0 || adminPort == 0)
+	if (basePath.compare("") == 0 || port == 0)
 	{
 		legalArgs = false;
 	}
@@ -71,7 +61,7 @@ int main( int argc, char *argv[] )
 	if ( !legalArgs )
 	{
 		printf("HackNet Server version %s\n", VERSION );
-		printf("Usage: hacknetd --base-path=<dir for save files> --log-path=<path for log files> --player-port=<port number for player connections> --admin-port<port number for admin connections> [--with-groups]\n");
+		printf("Usage: hacknetd --path=<dir for files> --port=<port number for connections> [--with-groups]\n");
 		exit(1);
 	}
 
@@ -79,7 +69,7 @@ int main( int argc, char *argv[] )
 		hnGroupManager::SetMaxGroupDistance(0);
 	
 	printf("HackNet version %s starting up...\n\n", VERSION );
-	printf("BasePath(%s), LogPath(%s), PlayerPort(%i), AdminPort(%i)\n\n", basePath.c_str(), logPath.c_str(), playerPort, adminPort );
+	printf("BasePath(%s), Port(%i)\n\n", basePath.c_str(), port );
 	
 	printf("Initialising random number system...\n");
 	hnRandom::Startup( time(NULL) );
@@ -91,7 +81,7 @@ int main( int argc, char *argv[] )
 	if ( game )
 	{
 		printf("Starting server...\n");
-		netServer::Startup(basePath, logPath, playerPort, adminPort);
+		netServer::Startup(basePath, port);
 		netServer *server = netServer::GetInstance();
 		
 		server->Go();

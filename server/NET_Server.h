@@ -57,17 +57,18 @@ class netServer
 	
 	std::string m_BasePath; // path to the folder where the state files are to be kept.
 	std::string m_LogPath; // path to the folder where the log files are placed
-	int m_PlayerPort; // Port number the players will connect to
-	int m_AdminPort; // Port number the admins will connect to
+	std::string m_SavePath; // path to the folder where the save files are placed
+	std::string m_CachePath; // path to the folder where any cache files are placed
+	int m_Port; // Port number to connect to
 	
 	
 protected:
-				netServer();					// constructs and starts listening on our port..
+				netServer(std::string basePath, int port);					// constructs and starts listening on our port..
 	virtual			~netServer();
 	void			StartServer();
 	bool			ProcessClientPacket(int clientID, char *buffer, short bufferLength); // false == invalid packet, so kill the connection.
 public:
-	static void		Startup(std::string basePath, std::string logPath, int playerPort, int adminPort);
+	static void		Startup(std::string basePath, int port);
 	static void		Shutdown();
 	static netServer * 	GetInstance();
 	
