@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <string>
+#include <iostream>
 #include "HN_Game.h"
 #include "HN_Random.h"
 #include "NET_Server.h"
@@ -35,10 +36,27 @@ int main( int argc, char *argv[] )
 				// Have a look to see if it is the base directory
 				std::string fullArg(argv[i]);
 				size_t iIndex = fullArg.rfind("=");
-				if(iIndex != std::string::npos && fullArg.length() >= 1)
+				if(iIndex != std::string::npos && fullArg.length() >= 2)
 				{
-					std::string arg = fullArg.substr(0, fullArg.length() - iIndex - 1);
+					std::string arg = fullArg.substr(0, iIndex);
 					std::string val = fullArg.substr(iIndex + 1, fullArg.length() - iIndex - 1);
+
+					if (arg.compare("--base-path") == 0)
+					{
+						basePath = val;
+					}
+					if (arg.compare("--log-path") == 0)
+					{
+						logPath = val;
+					}
+					if (arg.compare("--player-port") == 0)
+					{
+						playerPort = atoi(val.c_str());
+					}
+					if (arg.compare("--admin-port") == 0)
+					{
+						adminPort = atoi(val.c_str());
+					}
 				}
 			}
 		}
@@ -60,7 +78,8 @@ int main( int argc, char *argv[] )
 	if ( !useGroups )
 		hnGroupManager::SetMaxGroupDistance(0);
 	
-	printf("HackNet version %s starting up...\n", VERSION );
+	printf("HackNet version %s starting up...\n\n", VERSION );
+	printf("BasePath(%s), LogPath(%s), PlayerPort(%i), AdminPort(%i)\n\n", basePath.c_str(), logPath.c_str(), playerPort, adminPort );
 	
 	printf("Initialising random number system...\n");
 	hnRandom::Startup( time(NULL) );
