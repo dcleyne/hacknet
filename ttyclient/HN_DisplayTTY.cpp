@@ -1,13 +1,4 @@
-#if HAVE_LIBNCURSES
-  #include <ncurses.h>
-#else
-  #if HAVE_LIBCURSES
-    #include <curses.h>
-  #else
-    #error "No curses library found!"
-  #endif
-#endif
-
+#include <ncurses.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

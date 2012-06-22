@@ -18,7 +18,7 @@
 #include "MAP_Base.h"
 #include "OBJ_Base.h"
 
-// #include <boost/filesystem.hpp>
+#include <boost/filesystem.hpp>
 
 #define HACKNET_PORT 		(9274)
 #define MAX_CONNECTIONS		(16)
@@ -59,13 +59,16 @@ netServer::netServer(std::string basePath, int port) :
 
 	try
 	{
-		// boost::filesystem::create_directories(m_LogPath);
-		// boost::filesystem::create_directories(m_SavePath);
-		// boost::filesystem::create_directories(m_CachePath);
+		printf("Creating path: %s", m_LogPath.c_str());
+		boost::filesystem::create_directories(m_LogPath);
+		printf("Creating path: %s", m_SavePath.c_str());
+		boost::filesystem::create_directories(m_SavePath);
+		printf("Creating path: %s", m_CachePath.c_str());
+		boost::filesystem::create_directories(m_CachePath);
 	}
 	catch (...)
 	{
-		printf("Failed to initialise server storage");
+		printf("!!! Failed to initialise server storage !!!");
 		exit(1);
 	}
 

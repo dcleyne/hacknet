@@ -1,4 +1,14 @@
 set(CMAKE_CXX_FLAGS "-g -Wall")
+
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON) 
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Boost 1.48.0 COMPONENTS system filesystem)
+
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+endif()
+
 include_directories(. ../common)
 
 ########### next target ###############
@@ -60,9 +70,9 @@ set(SOURCES
 add_executable(hacknetd ${SOURCES})
 add_definitions("-D VERSION=\\\"0.0.7\\\"")
 
-
-#target_link_libraries(hacknetd)
-
+if(Boost_FOUND)
+    target_link_libraries(hacknetd ${Boost_LIBRARIES})                                                                                                                                                                                                                            
+endif()
 
 ########### install files ###############
 

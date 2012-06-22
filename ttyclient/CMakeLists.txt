@@ -1,5 +1,6 @@
 SET(CURSES_NEED_NCURSES TRUE)
 find_package(Curses REQUIRED)
+find_package(Threads REQUIRED)
 
 set(CMAKE_CXX_FLAGS "-g -Wall")
 include_directories(. ../common ../client)
@@ -25,7 +26,7 @@ set(SOURCES
 add_executable(hacknet.tty ${SOURCES})
 add_definitions("-D VERSION=\\\"0.0.7\\\"")
 add_definitions("-D HAVE_LIBNCURSES" "-D HAS_COLOR_SET")
-target_link_libraries(hacknet.tty ${CURSES_LIBRARY})
+target_link_libraries(hacknet.tty ${CURSES_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
 ########### install files ###############
 
