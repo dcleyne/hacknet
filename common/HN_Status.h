@@ -101,7 +101,7 @@ public:
 
 	void		ExerciseStatistic( statisticType type, bool up );
 	bool		IncrementStatistic( statisticType type, bool up ); // return success
-	uint16		HallucinatingTime( uint16 timer ) { m_hallucinating = timer; }
+	uint16		HallucinatingTime( uint16 timer ) { m_hallucinating = timer; return m_hallucinating; }
 	void		RegainLevel();
 	
 	void		TurnPassed();	// a turn has passed.  Do whatever needs to be done.
