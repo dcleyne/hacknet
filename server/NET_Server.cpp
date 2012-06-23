@@ -59,11 +59,11 @@ netServer::netServer(std::string basePath, int port) :
 
 	try
 	{
-		printf("Creating path: %s", m_LogPath.c_str());
+		printf("Creating path: %s\n", m_LogPath.c_str());
 		boost::filesystem::create_directories(m_LogPath);
-		printf("Creating path: %s", m_SavePath.c_str());
+		printf("Creating path: %s\n", m_SavePath.c_str());
 		boost::filesystem::create_directories(m_SavePath);
-		printf("Creating path: %s", m_CachePath.c_str());
+		printf("Creating path: %s\n", m_CachePath.c_str());
 		boost::filesystem::create_directories(m_CachePath);
 	}
 	catch (...)
