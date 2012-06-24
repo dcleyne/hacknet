@@ -1,4 +1,5 @@
 set(CMAKE_CXX_FLAGS "-g -Wall")
+SET(CMAKE_MODULE_PATH "../cmake")
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON) 
@@ -7,6 +8,11 @@ find_package(Boost 1.48.0 COMPONENTS system filesystem)
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
+endif()
+
+FIND_PACKAGE(log4cpp REQUIRED)
+if (LOG4CPP_FOUND)
+	INCLUDE_DIRECTORIES(${LOG4CPP_INCLUDE_DIR})
 endif()
 
 include_directories(. ../common)
@@ -70,8 +76,8 @@ set(SOURCES
 add_executable(hacknetd ${SOURCES})
 add_definitions("-D VERSION=\\\"0.0.7\\\"")
 
-if(Boost_FOUND)
-    target_link_libraries(hacknetd ${Boost_LIBRARIES})                                                                                                                                                                                                                            
+if(Boost_FOUND AND LOG4CPP_FOUND)
+    target_link_libraries(hacknetd ${Boost_LIBRARIES} ${LOG4CPP_LIBRARIES})                                                                                                                                                                                                                            
 endif()
 
 ########### install files ###############
