@@ -17,8 +17,8 @@
 #include "HN_Game.h"
 #include "MAP_Base.h"
 #include "OBJ_Base.h"
+#include "HN_Logger.h"
 
-#include <boost/filesystem.hpp>
 
 #define HACKNET_PORT 		(9274)
 #define MAX_CONNECTIONS		(16)
@@ -29,10 +29,10 @@
 
 netServer* netServer::s_instance = NULL;
 
-void netServer::Startup(std::string basePath, int port)
+void netServer::Startup(int port)
 {
 	assert( s_instance == NULL);
-	s_instance = new netServer(basePath, port);
+	s_instance = new netServer(port);
 }
 
 void netServer::Shutdown()
@@ -48,29 +48,10 @@ netServer* netServer::GetInstance()
 	return s_instance;
 }
 
-netServer::netServer(std::string basePath, int port) :
-		m_clientCount(0), m_metaPacket(NULL), m_BasePath(basePath), m_Port(port)
+netServer::netServer(int port) :
+		m_clientCount(0), m_metaPacket(NULL), m_Port(port)
 {
 	m_game = hnGame::GetInstance();
-
-	m_LogPath = m_BasePath + "/log";
-	m_SavePath = m_BasePath + "/save";
-	m_CachePath = m_BasePath + "/cache";
-
-	try
-	{
-		printf("Creating path: %s\n", m_LogPath.c_str());
-		boost::filesystem::create_directories(m_LogPath);
-		printf("Creating path: %s\n", m_SavePath.c_str());
-		boost::filesystem::create_directories(m_SavePath);
-		printf("Creating path: %s\n", m_CachePath.c_str());
-		boost::filesystem::create_directories(m_CachePath);
-	}
-	catch (...)
-	{
-		printf("!!! Failed to initialise server storage !!!");
-		exit(1);
-	}
 
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -95,7 +76,7 @@ void netServer::StartServer()
 	//int sock_fd;
 	//sockaddr_in my_addr;
 
-	printf("Getting socket...\n");
+	HN_Logger::LogInfo("Getting socket...");
 	if ((m_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		perror("socket");
@@ -107,14 +88,14 @@ void netServer::StartServer()
 	m_localAddress->sin_addr.s_addr = INADDR_ANY; // auto-fill with my IP
 	bzero((char *) &(m_localAddress->sin_zero), 8); // zero out the rest of the struct
 
-	printf("Binding socket to port %d...\n", m_Port);
+	HN_Logger::LogInfo("Binding socket to port %d...", m_Port);
 	if (bind(m_socket, (sockaddr *) m_localAddress, sizeof(sockaddr)) < 0)
 	{
 		perror("bind");
 		exit(1);
 	}
 
-	printf("Listening to socket..\n");
+	HN_Logger::LogInfo("Listening to socket...");
 	if (listen(m_socket, MAX_CONNECTIONS) == -1)
 	{
 		perror("listen");
@@ -162,19 +143,18 @@ void netServer::Go()
 
 			if (retval == -1)
 			{
-				printf("select error caught: %d", errno);
+				HN_Logger::LogInfo("select error caught: %d", errno);
 			}
 		}
 
 		socklen_t sin_size = sizeof(sockaddr_in);
-		//printf("Got socket stuff... \n");
 		if (FD_ISSET(m_socket, &open_sockets)) // we have a new client
 		{
 			if (m_clientCount >= MAX_CLIENTS)
 			{
-				printf("Server got connect from %s",
+				HN_Logger::LogInfo("Server got connect from %s",
 						inet_ntoa(their_addr.sin_addr));
-				printf("but too many clients connected!\n");
+				HN_Logger::LogInfo("but too many clients connected!");
 				int refusedSocket = accept(m_socket, (sockaddr *) &their_addr,
 						&sin_size);
 				close(refusedSocket);
@@ -193,20 +173,20 @@ void netServer::Go()
 				}
 				if (!okay)
 				{
-					printf("No sockets available??? Exiting...\n");
+					HN_Logger::LogInfo("No sockets available??? Exiting...");
 					exit(1);
 				}
 				else if ((m_client[i].socket = accept(m_socket,
 						(sockaddr *) &their_addr, &sin_size)) == -1)
 				{
 					perror("accept");
-					printf(
-							"Something went wrong while trying to accept connection.  Ignoring it.\n");
+					HN_Logger::LogInfo(
+							"Something went wrong while trying to accept connection.  Ignoring it.");
 					//exit(1);
 				}
 				else
 				{
-					printf("Server got connect from %s\n",
+					HN_Logger::LogInfo("Server got connect from %s",
 							inet_ntoa(their_addr.sin_addr));
 					m_game->ClientJoined(i);
 					m_clientCount++;
@@ -219,8 +199,6 @@ void netServer::Go()
 			if (m_client[i].socket
 					!= -1&& FD_ISSET(m_client[i].socket, &open_sockets))
 			{
-				//printf("Received packet from client ID %d, waiting for %d bytes of data.\n",i, m_client[i].incomingPacketSize);
-
 				if (m_client[i].incomingPacketSize == 0) // new incoming packet
 				{
 					if (m_client[i].incomingPacketSizeSize == 0)
@@ -229,17 +207,13 @@ void netServer::Go()
 					char * packetSizeBufferPointer =
 							(char *) &m_client[i].incomingPacketSizeBuffer;
 
-#ifdef __DETAIL_DEBUG_NETWORKING__
-					printf("Waiting for %d bytes of packet size data.\n", m_client[i].incomingPacketSizeSize);
-#endif
+					HN_Logger::LogDebug("Waiting for %d bytes of packet size data.", m_client[i].incomingPacketSizeSize);
 
 					int bytesRead = recv(m_client[i].socket,
 							packetSizeBufferPointer,
 							m_client[i].incomingPacketSizeSize, 0); // first a short saying how many bytes of data are coming..
 
-#ifdef __DETAIL_DEBUG_NETWORKING__
-					printf("Received %d bytes of packet size data.\n", bytesRead);
-#endif
+					HN_Logger::LogDebug("Received %d bytes of packet size data.", bytesRead);
 					packetSizeBufferPointer += bytesRead;
 					m_client[i].incomingPacketSizeSize -= bytesRead;
 
@@ -248,19 +222,15 @@ void netServer::Go()
 						m_client[i].packetFullSize =
 								m_client[i].incomingPacketSize =
 										ntohs( m_client[i].incomingPacketSizeBuffer );
-#ifdef __DETAIL_DEBUG_NETWORKING__						
-						printf("We're going to wait for %d bytes of data in total.\n",m_client[i].incomingPacketSize);
-#endif		
+						HN_Logger::LogDebug("We're going to wait for %d bytes of data in total.",m_client[i].incomingPacketSize);
 						m_client[i].incomingPacketSizeSize = 0;
 
-						//	printf("  Next packet will have size %d.\n", packetSize);
-						//	printf("  Max legal packet size is: %d.\n", sizeof(netServerPacket) );
 						if (m_client[i].incomingPacketSize
 								> MAX_CLIENT_PACKET_SIZE)
 						{
 							// aiee!  Illegally large packet!  Kill the client!
-							printf(
-									"  Packet size data illegal!  Killing client.\n");
+							HN_Logger::LogInfo(
+									"  Packet size data illegal!  Killing client.");
 							SendBadPacketNotice(i);
 							DisconnectClientID(i);
 						}
@@ -269,19 +239,17 @@ void netServer::Go()
 				else
 				{
 
-#ifdef __DETAIL_DEBUG_NETWORKING__
-					printf("Waiting for %d bytes of packet data.\n", m_client[i].incomingPacketSize);
-#endif
+					HN_Logger::LogDebug("Waiting for %d bytes of packet data.", m_client[i].incomingPacketSize);
 					int numBytesReceived = recv(m_client[i].socket,
 							m_client[i].packetRecv,
 							m_client[i].incomingPacketSize, 0);
 
 					if (numBytesReceived <= 0)
 					{
-						printf("  Error:  recv returned %d!\n",
+						HN_Logger::LogInfo("  Error:  recv returned %d!",
 								numBytesReceived);
 						// aiee!  Illegal packet!  Kill the client!
-						printf("  Error receiving packet!  Killing client.\n");
+						HN_Logger::LogInfo("  Error receiving packet!  Killing client.");
 						SendBadPacketNotice(i);
 						DisconnectClientID(i);
 					}
@@ -292,22 +260,20 @@ void netServer::Go()
 						m_client[i].incomingPacketSize -= numBytesReceived;
 						// we've gotten a packet from one of our clients...
 
-						//	printf("  Received %d bytes of data.  %d bytes remain to be received.\n", numBytesReceived, m_client[i].incomingPacketSize );
-
 						if (m_client[i].incomingPacketSize <= 0)
 						{
 							assert(m_client[i].incomingPacketSize == 0);
 							m_client[i].incomingPacketSize = 0;
 							m_client[i].packetRecv = m_client[i].packet;
 #ifdef __DEBUG_NETWORKING__
-							printf("  Received %d byte packet from %s (client id %d).\n", m_client[i].packetFullSize, m_game->GetPlayerName(i), i);
+							HN_Logger::LogDebug("  Received %d byte packet from %s (client id %d).", m_client[i].packetFullSize, m_game->GetPlayerName(i), i);
 #endif
 							if (!ProcessClientPacket(i, m_client[i].packet,
 									m_client[i].packetFullSize))
 							{
 								// aiee!  Illegal packet!  Kill the client!
-								printf(
-										"  Packet data illegal!  Killing client.\n");
+								HN_Logger::LogInfo(
+										"  Packet data illegal!  Killing client.");
 								SendBadPacketNotice(i);
 								DisconnectClientID(i);
 							}
@@ -332,11 +298,11 @@ bool netServer::ProcessClientPacket(int clientID, char *buffer,
 
 	assert(clientID >= 0 && clientID < MAX_CLIENTS);
 #ifdef __DISPLAY_PACKET_CONTENT__
-	printf("Received %d bytes.\n", incomingBytes );
+	HN_Logger::LogDebug("Received %d bytes.", incomingBytes );
 
 	for ( int i = 0; i < incomingBytes; i++ )
 	{
-		printf("Byte %d: %d\n", i, buffer[i] );
+		HN_Logger::LogDebug("Byte %d: %d", i, buffer[i] );
 	}
 #endif
 	netMetaPacketInput *packet = new netMetaPacketInput(buffer, incomingBytes);
@@ -396,11 +362,11 @@ bool netServer::ProcessClientPacket(int clientID, char *buffer,
 		case CPT_Name:
 			okay = packet->ClientName(localbuffer, bufferSize);
 			m_game->ClientName(clientID, localbuffer, bufferSize);
-			printf("Client %d calls himself %s\n", clientID, localbuffer);
+			HN_Logger::LogInfo("Client %d calls himself %s", clientID, localbuffer);
 			break;
 		case CPT_RequestRefresh:
 			okay = packet->ClientRequestRefresh(level);
-			printf("Client %d requests refresh of level %d.\n", clientID,
+			HN_Logger::LogInfo("Client %d requests refresh of level %d.", clientID,
 					level);
 			m_game->ClientRequestRefresh(clientID, level);
 			break;
@@ -408,17 +374,17 @@ bool netServer::ProcessClientPacket(int clientID, char *buffer,
 			okay = packet->ClientSave();
 			SendQuitConfirm(clientID);
 			DisconnectClientID(clientID);
-			printf("Disconnected client %d.\n", clientID);
+			HN_Logger::LogInfo("Disconnected client %d.", clientID);
 			break;
 		case CPT_Quit:
 			okay = packet->ClientQuit();
 			SendQuitConfirm(clientID);
 			DisconnectClientID(clientID);
-			printf("Disconnected client %d.\n", clientID);
+			HN_Logger::LogInfo("Disconnected client %d.", clientID);
 			break;
 		default:
 			okay = false;
-			printf("Received unknown packet type %d from %s (id %d).\n", type,
+			HN_Logger::LogInfo("Received unknown packet type %d from %s (id %d).", type,
 					m_game->GetPlayerName(clientID), clientID);
 			break;
 		}
@@ -619,7 +585,7 @@ bool netServer::TransmitMetaPacket()
 			short metapacketdatalength = htons(m_metaPacket->GetBufferLength());
 
 #ifdef __DEBUG_NETWORKING__
-			printf("Sending %ld byte metapacket to %s (id %d)...\n", m_metaPacket->GetBufferLength(),
+			HN_Logger::LogDebug("Sending %ld byte metapacket to %s (id %d)...", m_metaPacket->GetBufferLength(),
 					m_game->GetPlayerName(m_packetClientID), m_packetClientID);
 #endif
 
@@ -635,7 +601,7 @@ bool netServer::TransmitMetaPacket()
 #ifdef __DISPLAY_PACKET_CONTENT__
 			for ( int i = 0; i < m_metaPacket->GetBufferLength(); i++ )
 			{
-				printf("Value: %d\n", m_metaPacket->GetBuffer()[i]);
+				HN_Logger::LogDebug("Value: %d", m_metaPacket->GetBuffer()[i]);
 			}
 #endif
 			if (send(m_client[m_packetClientID].socket,
@@ -654,8 +620,6 @@ bool netServer::TransmitMetaPacket()
 			//	We don't actually care about this case..  it's perfectly legal to try to send a
 			//	zero-length metapacket -- we'll just quietly not send it.  (This makes network
 			//	logic a lot simpler elsewhere in the codebase)
-			//
-			//	printf("Illegal metapacket length %d!\n",m_metaPacket->GetBufferLength());
 		}
 
 		delete m_metaPacket;
@@ -663,7 +627,7 @@ bool netServer::TransmitMetaPacket()
 	}
 	else
 	{
-		printf("Illegal request to send non-existant metapacket!\n");
+		HN_Logger::LogInfo("Illegal request to send non-existant metapacket!");
 	}
 
 	return success;

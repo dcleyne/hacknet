@@ -8,6 +8,9 @@
 #include "HN_Random.h"
 #include "NET_Server.h"
 #include "HN_Group.h"
+#include "HN_Logger.h"
+
+#include <boost/filesystem.hpp>
 
 int main( int argc, char *argv[] )
 {
@@ -65,31 +68,46 @@ int main( int argc, char *argv[] )
 		exit(1);
 	}
 
+	std::string LogPath = basePath + "/log";
+	std::string SavePath = basePath + "/save";
+
+	try
+	{
+		boost::filesystem::create_directories(LogPath);
+		boost::filesystem::create_directories(SavePath);
+	}
+	catch (...)
+	{
+		printf("!!! Failed to initialise server storage !!!");
+		exit(1);
+	}
+
+	HN_Logger::SetLogFile(LogPath + "/hacknetd.log");
 	if ( !useGroups )
 		hnGroupManager::SetMaxGroupDistance(0);
 	
-	printf("HackNet version %s starting up...\n\n", VERSION );
-	printf("BasePath(%s), Port(%i)\n\n", basePath.c_str(), port );
+	HN_Logger::LogInfo("HackNet version %s starting up...", VERSION );
+	HN_Logger::LogInfo("BasePath(%s), Port(%i)", basePath.c_str(), port );
 	
-	printf("Initialising random number system...\n");
+	HN_Logger::LogInfo("Initialising random number system...");
 	hnRandom::Startup( time(NULL) );
 	
-	printf("Initialising game...\n");
+	HN_Logger::LogInfo("Initialising game...");
 	hnGame::Startup();
 	hnGame *game = hnGame::GetInstance();
 
 	if ( game )
 	{
-		printf("Starting server...\n");
-		netServer::Startup(basePath, port);
+		HN_Logger::LogInfo("Starting server...");
+		netServer::Startup(port);
 		netServer *server = netServer::GetInstance();
 		
 		server->Go();
 		
-		printf("Server exiting.\n");
+		HN_Logger::LogInfo("Server exiting.");
 		netServer::Shutdown();
 	}
 		
-	printf("Game ending...\n");
+	HN_Logger::LogInfo("Game ending...");
 	hnGame::Shutdown();
 }
