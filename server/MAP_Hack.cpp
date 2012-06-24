@@ -5,6 +5,7 @@
 #include "ENT_GridBug.h"
 #include "OBJ_Manager.h"
 #include "OBJ_Base.h"
+#include "HN_Logger.h"
 
 #include <stdio.h>
 #include <cstdlib>
@@ -123,7 +124,7 @@ mapHack::GenerateObjects()
 				if ( object )
 				{
 					object->SetPosition( hnPoint(x,y,m_depth) );
-					printf("Generated %s.\n", object->GetName() );
+					HN_Logger::LogInfo("Generated %s.", object->GetName() );
 					MapTile(x,y).object->AddObject( object );
 					didit = true;
 				}
@@ -151,7 +152,7 @@ mapHack::MakeCorridors()
 {
 	bool anyUnconnectedRooms = true;
 	
-	printf("Level %d has %d rooms.\n", m_depth, m_roomCount);
+	HN_Logger::LogInfo("Level %d has %d rooms.", m_depth, m_roomCount);
 
 	// Connect each room to the next room to the right.
 	for ( int i = 0; i < m_roomCount-1; i++ )

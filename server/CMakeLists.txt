@@ -4,6 +4,7 @@ SET(CMAKE_MODULE_PATH "../cmake")
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON) 
 set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Threads REQUIRED)
 find_package(Boost 1.48.0 COMPONENTS system filesystem)
 
 if(Boost_FOUND)
@@ -37,6 +38,8 @@ set(SOURCES
     HN_Dungeon.h
     HN_Config_Server.h
     HN_Properties.h
+    HN_Logger.h
+    HN_Logger.cpp
     NET_Server.cpp
     NET_Server.h
     MAP_Base.cpp
@@ -77,7 +80,7 @@ add_executable(hacknetd ${SOURCES})
 add_definitions("-D VERSION=\\\"0.0.7\\\"")
 
 if(Boost_FOUND AND LOG4CPP_FOUND)
-    target_link_libraries(hacknetd ${Boost_LIBRARIES} ${LOG4CPP_LIBRARIES})                                                                                                                                                                                                                            
+    target_link_libraries(hacknetd ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES} ${LOG4CPP_LIBRARIES})                                                                                                                                                                                                                            
 endif()
 
 ########### install files ###############

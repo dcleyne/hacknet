@@ -9,6 +9,7 @@
 #include "OBJ_Potion.h"
 #include "OBJ_Ring.h"
 #include "OBJ_Food.h"
+#include "HN_Logger.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -28,19 +29,19 @@ objManager::objManager()
 	for ( int i = 0; i < OBJ_TYPE_MAX; i++ )
 		m_objectTotalProbability[i] = 0;
 
-	printf("Object list debug information:\n---\n");
+	HN_Logger::LogInfo("Object list debug information:");
 	for ( int i = 0; i < m_objectCount; i++ )
 	{
 		if ( m_objectDef[i].name )
-			printf("%s  -  %d\n", m_objectDef[i].name, m_objectDef[i].probability);
+			HN_Logger::LogInfo("%s  -  %d", m_objectDef[i].name, m_objectDef[i].probability);
 		else
-			printf("Unnamed - %d\n", m_objectDef[i].probability);
+			HN_Logger::LogInfo("Unnamed - %d", m_objectDef[i].probability);
 		m_objectTotalProbability[m_objectDef[i].type] += m_objectDef[i].probability;
 	}
 
 	for ( int i = 0; i < OBJ_TYPE_MAX; i++ )
 	{
-		printf("Item class %d - %d total.\n", i, m_objectTotalProbability[i]);
+		HN_Logger::LogInfo("Item class %d - %d total.", i, m_objectTotalProbability[i]);
 	}
 }
 

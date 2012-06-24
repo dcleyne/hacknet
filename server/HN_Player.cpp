@@ -11,6 +11,7 @@
 #include "OBJ_Base.h"
 #include "ENT_Human.h"
 #include "ENT_GridBug.h"
+#include "HN_Logger.h"
 
 #include "assert.h"
 
@@ -49,7 +50,7 @@ hnPlayer::hnPlayer( int playerID, const hnPoint &where ):
 	m_completedTurn.type = queuedTurn::None;
 
 	if ( m_entity == NULL )
-		printf("Unable to allocate entity!\n");
+		HN_Logger::LogInfo("Unable to allocate entity!");
 }
 
 hnPlayer::~hnPlayer()
@@ -77,7 +78,7 @@ hnPlayer::Die()
 void
 hnPlayer::SetEntity( entBase * entity )
 {
-	printf("Setting entity...\n");
+	HN_Logger::LogInfo("Setting entity...");
 	if ( m_entity )
 		delete m_entity;
 	
@@ -99,7 +100,7 @@ bool
 hnPlayer::IsValidMove( hnDirection dir )
 {
 	if ( !m_entity )
-		printf("ERROR!  No entity!\n");
+		HN_Logger::LogInfo("ERROR!  No entity!");
 	return m_entity->IsValidMove( dir );
 }
 
@@ -196,7 +197,7 @@ hnPlayer::Drop( const objDescription &object, uint8 inventorySlot )
 	}
 	else
 	{
-		printf("Player requested illegal drop of inventorySlot %d\n", inventorySlot);
+		HN_Logger::LogInfo("Player requested illegal drop of inventorySlot %d", inventorySlot);
 	}
 }
 
@@ -212,7 +213,7 @@ hnPlayer::Wield( const objDescription &object, uint8 inventorySlot )
 	}
 	else
 	{
-		printf("Received unwield request...\n");
+		HN_Logger::LogInfo("Received unwield request...");
 		// unwield instead.
 		m_queuedTurn.type = queuedTurn::Wield;
 		m_queuedTurn.wield.object = NULL;
@@ -233,7 +234,7 @@ hnPlayer::Wear( const objDescription &object, uint8 inventorySlot )
 	}
 	else
 	{
-		printf("Received illegal wear request...\n");
+		HN_Logger::LogInfo("Received illegal wear request...");
 	}
 }
 
@@ -249,7 +250,7 @@ hnPlayer::Remove( const objDescription &object, uint8 inventorySlot )
 	}
 	else
 	{
-		printf("Received illegal remove request...\n");
+		HN_Logger::LogInfo("Received illegal remove request...");
 	}
 }
 
@@ -266,7 +267,7 @@ hnPlayer::Quaff( const objDescription &object, uint8 inventorySlot )
 	}
 	else
 	{
-		printf("Received illegal quaff request...\n");
+		HN_Logger::LogInfo("Received illegal quaff request...");
 	}
 }
 
@@ -282,7 +283,7 @@ hnPlayer::Eat( const objDescription &object, uint8 inventorySlot )
 	}
 	else
 	{
-		printf("Received illegal eat request...\n");
+		HN_Logger::LogInfo("Received illegal eat request...");
 	}
 }
 
@@ -292,7 +293,7 @@ hnPlayer::Eat( const objDescription &object, uint8 inventorySlot )
 void
 hnPlayer::UnWield()
 {
-	printf("AIEEE!\n");
+	HN_Logger::LogInfo("AIEEE!");
 }
 
 const hnPoint &
@@ -499,7 +500,7 @@ hnPlayer::DoMove()
 	{
 		if ( m_moveDestination.z < 0 )
 		{
-			printf("%s left the dungeon!\n", GetName() );
+			HN_Logger::LogInfo("%s left the dungeon!", GetName() );
 			netServer::GetInstance()->SendQuitConfirm(m_playerID);
 		}
 		else
@@ -571,7 +572,7 @@ hnPlayer::SendUpdate()
 	//---------------------------------------------------------------
 	if ( GetPosition().z < 0 )
 	{
-		printf("ERROR!  I'm at an illegal level depth!\n");
+		HN_Logger::LogInfo("ERROR!  I'm at an illegal level depth!");
 		return;
 	}
 	
@@ -683,7 +684,7 @@ hnPlayer::SendUpdate()
 							object->FillDescription( m_clientInventory[j] );
 							netServer::GetInstance()->SendInventoryItem( m_clientInventory[j], j );
 							inventoryUpdated = true;
-							printf("Sending updated inventory slot %d\n",j);
+							HN_Logger::LogInfo("Sending updated inventory slot %d",j);
 						}
 						break;
 					}
@@ -708,7 +709,7 @@ hnPlayer::SendUpdate()
 							m_clientInventoryMapping[j] = object;
 							slotUsed[j] = true;
 							netServer::GetInstance()->SendInventoryItem( m_clientInventory[j], j );
-							printf("Sending updated inventory slot %d\n",j);
+							HN_Logger::LogInfo("Sending updated inventory slot %d",j);
 							break;
 						}
 					}
@@ -726,7 +727,7 @@ hnPlayer::SendUpdate()
 								inventoryUpdated = true;
 								slotUsed[j] = true;
 								netServer::GetInstance()->SendInventoryItem( m_clientInventory[j], j );
-								printf("Sending updated inventory slot %d\n",j);
+								HN_Logger::LogInfo("Sending updated inventory slot %d",j);
 								break;
 							}
 						}
@@ -745,13 +746,13 @@ hnPlayer::SendUpdate()
 				m_clientInventory[i].count = 0;
 				inventoryUpdated = true;
 				netServer::GetInstance()->SendInventoryItem( m_clientInventory[i], i );
-							printf("Sending updated inventory slot %d\n",i);
+							HN_Logger::LogInfo("Sending updated inventory slot %d",i);
 			}
 		}
 		
 		/*if ( inventoryUpdated )
 		{
-			printf("Updating inventory.\n");
+			HN_Logger::LogInfo("Updating inventory.");
 			netInventory inven(INVENTORY_MAX);
 
 			for ( int i = 0; i < INVENTORY_MAX; i++ )
@@ -877,6 +878,6 @@ hnPlayer::SendMapData( const hnPoint2D &tlpos, const hnPoint2D &brpos, int level
 	}
 	else
 	{
-		//printf( "No visual change.\n" );
+		//HN_Logger::LogInfo( "No visual change." );
 	}
 }
