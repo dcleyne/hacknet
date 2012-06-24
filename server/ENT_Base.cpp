@@ -12,6 +12,7 @@
 #include "HN_Player.h"
 #include "HN_Group.h"
 #include "HN_Status.h"
+#include "HN_Logger.h"
 
 #include "assert.h"
 
