@@ -276,7 +276,7 @@ entBase::Take( objBase *object, uint8 count )
 		}
 		else
 		{
-			printf("Weird -- GetTakeTarget() worked, but Take() didn't.\n");
+			HN_Logger::LogInfo("Weird -- GetTakeTarget() worked, but Take() didn't.");
 		}
 	}
 	return result;
