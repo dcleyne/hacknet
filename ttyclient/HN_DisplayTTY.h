@@ -87,7 +87,7 @@ public:
 	virtual void	UpdateMapCreature( const hnPoint &point, entType type );
 	virtual void	UpdateGroupData( int groupMembers, int groupMembersWithTurns, bool haveISubmitted );
 
-	virtual void	TextMessage( char * message );
+	virtual void	TextMessage( const char * message );
 };
 
 void *	StartEventLoop(void *);		// for use by our thread to check for keypresses

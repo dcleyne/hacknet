@@ -477,8 +477,8 @@ mapBase::CalculateOctantVisibility( const hnPoint &position, const hnPoint &offs
 	bool somethingWasLit = false;
 	
 	int boundsCounter = 0;
-	int cell;
-	int col;
+	unsigned int cell;
+	unsigned int col;
 
 	// Cell 0,0 is assumed to be lit.
 	

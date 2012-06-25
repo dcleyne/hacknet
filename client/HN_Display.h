@@ -63,7 +63,7 @@ public:
 	virtual void	UpdateMapCreature( const hnPoint &point, entType type );
 	virtual void	UpdateGroupData( int groupMemberCount, int groupMemberTurnCount, bool submittedTurn );
 	virtual void	UpdateInventory( int objectCount, objDescription *objectArray );
-	virtual void	TextMessage( char * message ) {}
+	virtual void	TextMessage( const char * message ) {}
 
 	virtual void	SetObjectStats( uint16 objectCount );
 	virtual void	SetObjectName( uint16 objectID, objType type, char * name );

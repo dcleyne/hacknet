@@ -1,8 +1,9 @@
+set(CMAKE_CXX_FLAGS "-g -Wall")
+
 SET(CURSES_NEED_NCURSES TRUE)
 find_package(Curses REQUIRED)
 find_package(Threads REQUIRED)
 
-set(CMAKE_CXX_FLAGS "-g -Wall")
 include_directories(. ../common ../client)
 
 ########### next target ###############

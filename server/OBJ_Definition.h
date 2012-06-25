@@ -82,8 +82,8 @@ enum
 
 struct objPrototype
 {
-	char *		name;
-	char *		desc;
+	const char *name;
+	const char *desc;
 	
 	unsigned int	nameknown:1;		//
         unsigned int 	stackable:1;    	// true if this object will stack with similar objects

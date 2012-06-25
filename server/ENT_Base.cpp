@@ -66,7 +66,7 @@ entBase::DoEffect( uint8 property, uint8 bc, objType type )
 {
 	bool blessed 	= (bc == BC_Blessed);
 	bool cursed 	= (bc == BC_Cursed);
-	bool uncursed 	= (bc == BC_Uncursed);
+	// bool uncursed 	= (bc == BC_Uncursed);
 
 	int blessFactor = ((blessed)?1:0) - ((cursed)?1:0);
 
@@ -200,10 +200,11 @@ entBase::DoEffect( uint8 property, uint8 bc, objType type )
 void
 entBase::DoEat( sint16 nutrition )
 {
+	static char _munchmunchmunch[] = "Munch munch munch...";
 	m_status->Eat( nutrition );
 
 	if ( m_player )
-		m_player->Listen("Munch munch munch...");
+		m_player->Listen(_munchmunchmunch);
 }
 
 bool

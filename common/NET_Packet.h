@@ -111,8 +111,8 @@ public:
 	sint16 		*wall;
 	sint8 		*entityType;
 	
-	uint16		*objectCount;	// number of objects in each square
 	objDescription 	**object;	// arrays of objects in each square
+	uint16		*objectCount;	// number of objects in each square
 
 	netMapUpdateBBox();
 	~netMapUpdateBBox();

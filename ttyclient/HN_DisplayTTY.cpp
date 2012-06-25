@@ -48,7 +48,7 @@ hnDisplayTTY::hnDisplayTTY( char * name ):
 
 	if ( has_colors() )
 	{
-		short fore, back;
+		// short fore, back;
 		
 		start_color();
 		use_default_colors();
@@ -774,7 +774,7 @@ hnDisplayTTY::UpdateMapCreature( const hnPoint &point, entType type )
 //--  Stick the passed message into our message buffer.  TODO:  Consider making this more like NetHack's
 //    message buffer, with cntrl-p to scroll back through previous messages.
 void
-hnDisplayTTY::TextMessage( char * message )
+hnDisplayTTY::TextMessage( const char * message )
 {
 	//----------------------------------------------------------------
 	//  If we're currently looking at a line, consider appending the
@@ -847,8 +847,10 @@ hnDisplayTTY::Refresh()
 			}
 		
 		// clear upper prompt area.
-		int maxy, maxx;
+		int maxy;
+		int maxx;
 		getmaxyx(stdscr, maxy, maxx);
+		// printf("Clearing screen for maxx:%i, maxy:%i\n", maxx, maxy);
 		for ( int j = 0; j < 3; j++ )
 		{
 			for ( int i = 0; i < maxx; i++ )
@@ -864,6 +866,7 @@ hnDisplayTTY::Refresh()
 				mvaddch(j,i,' ');
 			}
 		}
+		maxx = maxy; // Get rid of compiler warning about unused variable maxy
 		
 		// do status bar
 
@@ -1011,6 +1014,7 @@ hnDisplayTTY::DrawObjectArray(objDescription *objects, uint8 objectCount, bool i
 void
 hnDisplayTTY::DrawObjectArrayFiltered(objDescription *objects,uint8 objectCount,uint16 flagFilter,bool inventory)
 {
+	/*
 	const char inventoryLetters[56] =
 	{
 		'a','b','c','d','e','f','g','h','i','j','k','l','m',
@@ -1018,6 +1022,8 @@ hnDisplayTTY::DrawObjectArrayFiltered(objDescription *objects,uint8 objectCount,
 		'A','B','C','D','E','F','G','H','I','J','K','L','M',
 		'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
 	};
+	*/
+
 	int x = 24;
 	int y = 0;
 	char buffer[256];

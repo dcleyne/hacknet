@@ -421,10 +421,10 @@ hnPlayer::GetFullName( char * buffer, int bufferSize )
 void
 hnPlayer::DoAction()
 {
-	entBase *entity;
-	int result;
+	// entBase *entity;
+	// int result;
 	//char name[128];
-	char buffer[128];
+	//char buffer[128];
 	bool success = false;
 
 	switch ( m_queuedTurn.type )
@@ -435,13 +435,8 @@ hnPlayer::DoAction()
 			break;
 		case queuedTurn::Attack:
 			
-			entity = m_entity->GetAttackTarget( m_queuedTurn.attack.direction );
-			
-		//	if (entity)
-		//	{
-		//		entity->GetFullName(name,128);
-		//	}
-			result = m_entity->Attack( m_queuedTurn.attack.direction );
+			m_entity->GetAttackTarget( m_queuedTurn.attack.direction );
+			m_entity->Attack( m_queuedTurn.attack.direction );
 			
 			success = true;
 			break;
@@ -481,7 +476,7 @@ hnPlayer::DoAction()
 		m_completedTurn = m_queuedTurn;
 	else
 	{
-		char *buffer="Request failed.";
+		char buffer[] ="Request failed.";
 		netServer::GetInstance()->StartMetaPacket(m_playerID);
 		netServer::GetInstance()->SendMessage(buffer);
 		netServer::GetInstance()->TransmitMetaPacket();
@@ -659,7 +654,7 @@ hnPlayer::SendUpdate()
 		//  has changed.
 		//----------------------------------------------------------
 		
-		bool inventoryUpdated = false;
+		// bool inventoryUpdated = false;
 		bool slotUsed[INVENTORY_MAX];
 
 		for ( int i = 0; i < INVENTORY_MAX; i++ )
@@ -683,7 +678,6 @@ hnPlayer::SendUpdate()
 							updatedID = j;
 							object->FillDescription( m_clientInventory[j] );
 							netServer::GetInstance()->SendInventoryItem( m_clientInventory[j], j );
-							inventoryUpdated = true;
 							HN_Logger::LogInfo("Sending updated inventory slot %d",j);
 						}
 						break;
@@ -704,7 +698,6 @@ hnPlayer::SendUpdate()
 						{
 							updatedID = j;
 							finished = true;
-							inventoryUpdated = true;
 							m_clientInventory[j] = result;
 							m_clientInventoryMapping[j] = object;
 							slotUsed[j] = true;
@@ -724,7 +717,6 @@ hnPlayer::SendUpdate()
 								m_clientInventoryMapping[j] = object;
 								m_clientInventory[j] = result;
 								finished = true;
-								inventoryUpdated = true;
 								slotUsed[j] = true;
 								netServer::GetInstance()->SendInventoryItem( m_clientInventory[j], j );
 								HN_Logger::LogInfo("Sending updated inventory slot %d",j);
@@ -744,23 +736,10 @@ hnPlayer::SendUpdate()
 			if ( slotUsed[i] == false && m_clientInventory[i].count > 0 )
 			{
 				m_clientInventory[i].count = 0;
-				inventoryUpdated = true;
 				netServer::GetInstance()->SendInventoryItem( m_clientInventory[i], i );
 							HN_Logger::LogInfo("Sending updated inventory slot %d",i);
 			}
 		}
-		
-		/*if ( inventoryUpdated )
-		{
-			HN_Logger::LogInfo("Updating inventory.");
-			netInventory inven(INVENTORY_MAX);
-
-			for ( int i = 0; i < INVENTORY_MAX; i++ )
-				inven.SetObject(i, m_clientInventory[i]);
-
-			netServer::GetInstance()->SendInventory(inven);
-			
-		}*/
 	}
 
 	//---------------------------------------------------------------

@@ -5,7 +5,7 @@
 
 class entGridBug : public entBase
 {
-	static char		*s_name;
+	static const char	*s_name;
 public:
 				entGridBug( const hnPoint &, hnPlayer * player = NULL );
 	virtual			~entGridBug();

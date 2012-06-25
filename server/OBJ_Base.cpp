@@ -6,10 +6,10 @@
 
 objBase::objBase( uint32 itemID ):
 	m_itemID(itemID),
-	m_blesscurse(BC_Uncursed),
-	m_count(1),
 	m_next(this),
 	m_prev(this),
+	m_count(1),
+	m_blesscurse(BC_Uncursed),
 	m_flags(0)
 {
         const objPrototype &proto = objManager::GetInstance()->GetPrototype( GetItemID() );
@@ -346,7 +346,7 @@ objBase::GetDescription(objDescription &result, int id)
 void
 objBase::FillDescription(objDescription &desc)
 {
-	const objPrototype &proto = objManager::GetInstance()->GetPrototype(m_itemID);
+	// const objPrototype &proto = objManager::GetInstance()->GetPrototype(m_itemID);
 	
 	desc.type = m_type;
 	desc.itemID = m_itemID;

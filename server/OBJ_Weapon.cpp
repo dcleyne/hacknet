@@ -23,6 +23,8 @@ objWeapon::SetWieldedPrimary(bool wielded)
 		m_flags &= ~FLAG_Wieldable;
 	else
 		m_flags |= FLAG_Wieldable;
+
+	return wielded;
 }
 
 
@@ -35,12 +37,14 @@ objWeapon::SetWieldedSecondary(bool wielded)
 		m_flags &= ~FLAG_Wieldable;
 	else
 		m_flags |= FLAG_Wieldable;
+
+	return wielded;
 }
 
 sint16
 objWeapon::RollDamage( entBase * foe )
 {
-        const objPrototype &proto = objManager::GetInstance()->GetPrototype( GetItemID() );
+    // const objPrototype &proto = objManager::GetInstance()->GetPrototype( GetItemID() );
 	
 	sint8 damage = objBase::RollDamage(foe);
 	

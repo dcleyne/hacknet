@@ -526,10 +526,14 @@ void netServer::SendObjectStats(uint16 objectCount)
 	m_metaPacket->ObjectStats(objectCount);
 }
 
-void netServer::SendObjectName(uint16 objectID, uint16 type, char * name)
+void netServer::SendObjectName(uint16 objectID, uint16 type, const char * name)
 {
 	sint16 messageLength = strlen(name);
-	m_metaPacket->ObjectName(objectID, type, name, messageLength);
+	char* tmpname = new char[messageLength];
+	strncpy(tmpname, name, messageLength);
+	tmpname[messageLength-1] = '\0';
+	m_metaPacket->ObjectName(objectID, type, tmpname, messageLength);
+	delete tmpname;
 }
 
 void netServer::SendQuitConfirm(int clientID)

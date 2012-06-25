@@ -90,7 +90,7 @@ public:
 	void		SendMessage( char * message );
 
 	void		SendObjectStats( uint16 objectClasses );
-	void		SendObjectName( uint16 objectID, uint16 type, char *name );
+	void		SendObjectName( uint16 objectID, uint16 type, const char *name );
 
 	void		SendDroppedItem( const objDescription & object );
 	void		SendTakenItem( const objDescription & object, int inventorySlot );

@@ -63,7 +63,7 @@ hnGame::~hnGame()
 
 char* hnGame::GetPlayerName(int playerID)
 {
-	static char * unnamed = "Unnamed";
+	static char _unnamed[] = "Unnamed";
 
 	if (playerID < MAX_CLIENTS)
 	{
@@ -73,7 +73,7 @@ char* hnGame::GetPlayerName(int playerID)
 		}
 	}
 
-	return unnamed;
+	return _unnamed;
 }
 
 void hnGame::SeenEvent(entBase *entity, char * message)
@@ -110,7 +110,7 @@ void hnGame::ClientJoined(int playerID)
 			return; // AIEE!!!  Couldn't place the player!
 		}
 
-	} while (hnDungeon::GetLevel(z)->WallAt(x, y) & WALL_Any
+	} while ((hnDungeon::GetLevel(z)->WallAt(x, y) & WALL_Any)
 			|| hnDungeon::GetLevel(z)->MapTile(x, y).entity != NULL);
 
 	HN_Logger::LogInfo("Setting playerID %d initial position to: (%d,%d,%d)", playerID, x,

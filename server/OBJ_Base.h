@@ -20,9 +20,9 @@ class objBase
 	
 protected:
 
-	uint16		m_flags;
-	uint8		m_blesscurse;
 	uint8		m_count;	// how many of us are there?
+	uint8		m_blesscurse;
+	uint16		m_flags;
 
 	void		Unlink();	
 	

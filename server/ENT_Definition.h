@@ -258,7 +258,7 @@ struct attack {
 
 struct entPrototype
 {
-	char *		name;
+	const char *name;
 
 	uint8		type;			// type, as determined by ENT_Types.h
 	uint8		level;			// default monster level

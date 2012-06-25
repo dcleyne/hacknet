@@ -219,6 +219,8 @@ hnDisplay::DroppedItem( const objDescription &desc )
 	snprintf(buffer,256,"You drop %s.", nameBuffer);
 }
 
+static char _emptyhanded[] = "You are now empty-handed.\n";
+
 void
 hnDisplay::WieldedItem( const objDescription &desc, int inventoryID )
 {
@@ -232,7 +234,7 @@ hnDisplay::WieldedItem( const objDescription &desc, int inventoryID )
 	}
 	else
 	{
-		TextMessage("You are now empty-handed.\n");
+		TextMessage(_emptyhanded);
 	}
 }
 
@@ -247,7 +249,7 @@ hnDisplay::WornItem( const objDescription &desc, int inventoryID )
 	}
 	else
 	{
-		TextMessage("You are now empty-handed.\n");
+		TextMessage(_emptyhanded);
 	}
 }
 

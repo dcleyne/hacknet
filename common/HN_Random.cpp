@@ -61,9 +61,9 @@ hnRandom::GetRange(uint32 min, uint32 max)
 uint32
 hnRandom::Dice(uint32 count, uint32 sides)
 {
-	int result = 0;
+	uint32 result = 0;
 	
-	for ( int i = 0; i < count; i++ )
+	for ( uint32 i = 0; i < count; i++ )
 		result += Get(sides) + 1;
 
 	return result;

@@ -226,9 +226,9 @@ netClient::Go()
 						m_display->UpdateMapCreature(entityData.loc, entityData.objectType);
 					break;
 				case SPT_DungeonReset:
+				case SPT_MapReset:
 					packet->DungeonReset(levelCount);
 					m_display->DungeonReset(levelCount);
-				case SPT_MapReset:
 					packet->MapReset(mapReset);
 					m_display->MapReset(mapReset.width, mapReset.height, mapReset.depth);
 					break;

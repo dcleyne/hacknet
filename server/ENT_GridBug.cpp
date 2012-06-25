@@ -2,7 +2,7 @@
 #include "ENT_GridBug.h"
 #include <assert.h>
 
-char * entGridBug::s_name = "grid bug";
+const char * entGridBug::s_name = "grid bug";
 
 entGridBug::entGridBug(const hnPoint & where, hnPlayer *player):
 	entBase( ENTITY_GridBug, where, player )
