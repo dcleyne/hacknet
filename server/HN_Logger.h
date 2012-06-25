@@ -19,11 +19,25 @@
 #include "log4cpp/Priority.hh"
 #include "log4cpp/NDC.hh"
 
-class HN_Logger {
+class HN_Logger
+{
 public:
+	enum LogLevel
+	{
+		DEBUG,
+		INFO,
+		NOTICE,
+		WARNING,
+		ERROR,
+		CRITICAL,
+		ALERT,
+		EMERGENCY
+	};
+
 	virtual ~HN_Logger();
 
 	static void SetLogFile(std::string logFileName);
+	static void SetLogLevel(LogLevel level);
 
 	static void LogEmerg(const char* text, ...);
 	static void LogAlert(const char* text, ...);

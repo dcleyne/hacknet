@@ -83,6 +83,7 @@ int main( int argc, char *argv[] )
 	}
 
 	HN_Logger::SetLogFile(LogPath + "/hacknetd.log");
+	HN_Logger::SetLogLevel(HN_Logger::DEBUG);
 	if ( !useGroups )
 		hnGroupManager::SetMaxGroupDistance(0);
 	
