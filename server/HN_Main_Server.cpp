@@ -77,6 +77,9 @@ int main(int argc, char *argv[])
 	{
 		boost::filesystem::create_directories(LogPath);
 		boost::filesystem::create_directories(SavePath);
+		boost::filesystem::create_directories(SavePath + "/dungeon");
+		boost::filesystem::create_directories(SavePath + "/players");
+		boost::filesystem::create_directories(SavePath + "/entities");
 	} catch (...)
 	{
 		printf("!!! Failed to initialise server storage !!!");
@@ -84,7 +87,7 @@ int main(int argc, char *argv[])
 	}
 
 	HN_Logger::SetLogFile(LogPath + "/hacknetd.log");
-	HN_Logger::SetLogLevel(HN_Logger::DEBUG);
+	HN_Logger::SetLogLevel(HN_Logger::INFO);
 	if (!useGroups)
 		hnGroupManager::SetMaxGroupDistance(0);
 
@@ -95,7 +98,7 @@ int main(int argc, char *argv[])
 	hnRandom::Startup(time(NULL));
 
 	HN_Logger::LogInfo("Initialising game...");
-	hnGame::Startup();
+	hnGame::Startup(SavePath);
 	hnGame *game = hnGame::GetInstance();
 
 	if (game)

@@ -333,7 +333,11 @@ void netClient::TransmitMetaPacket()
 void netClient::SendQuit(bool save)
 {
 	StartMetaPacket();
-	m_packet->ClientQuit();
+	if (save)
+		m_packet->ClientSave();
+	else
+		m_packet->ClientQuit();
+
 	TransmitMetaPacket();
 }
 

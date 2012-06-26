@@ -12,9 +12,10 @@
 //#define __DEBUGGING_NETWORK__
 
 #if !HAS_COLOR_SET
-	// if we don't have a 'color_set' function in curses, provide something for the source code's calls
-	// to link against.
-	int color_set(short,void * ){}
+// if we don't have a 'color_set' function in curses, provide something for the source code's calls
+// to link against.
+int color_set(short,void * )
+{}
 #endif
 
 #define COLOR_INVERSE 	(8)
@@ -24,20 +25,19 @@
 static pthread_mutex_t refresh_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 hnDisplayTTY::hnDisplayTTY( char * name ):
-	hnDisplay(name),
-	m_mode(MODE_Normal),
-	m_inventoryMode(ISM_None),
-	m_talkLength(0),
-	m_messageLines(0),
-	m_messageDisplayLine(0),
-	m_awaitingMore(false),
-	m_needsRefresh(false),
-	m_done(false)
+hnDisplay(name), m_mode (MODE_Normal),
+m_inventoryMode(ISM_None),
+m_talkLength(0),
+m_messageLines(0),
+m_messageDisplayLine(0),
+m_awaitingMore(false),
+m_needsRefresh(false),
+m_done(false)
 {
 	m_talkBuffer[0] = '\0';
 
 	for ( int i = 0; i < MAX_MESSAGE_SCROLLBACK; i++ )
-		m_messageBuffer[i][0] = '\0';
+	m_messageBuffer[i][0] = '\0';
 
 #ifndef __DEBUGGING_NETWORK__
 	initscr();
@@ -49,7 +49,7 @@ hnDisplayTTY::hnDisplayTTY( char * name ):
 	if ( has_colors() )
 	{
 		// short fore, back;
-		
+
 		start_color();
 		use_default_colors();
 		init_pair(COLOR_BLACK, COLOR_BLACK, -1);
@@ -64,12 +64,12 @@ hnDisplayTTY::hnDisplayTTY( char * name ):
 		// TODO:  This assumes the default color scheme is white on black.
 		// We should really check the default color scheme and select colours intelligently!
 		init_pair(COLOR_INVERSE, COLOR_BLACK, COLOR_WHITE);
-		
+
 	}
-	
-	refresh();	
+
+	refresh();
 #endif
-	
+
 }
 
 hnDisplayTTY::~hnDisplayTTY()
@@ -82,59 +82,57 @@ hnDisplayTTY::~hnDisplayTTY()
 	// put any debugging output here, if needed -- curses has been shut down and printf is safe again.
 }
 
-bool
-hnDisplayTTY::Go()
+bool hnDisplayTTY::Go()
 {
 	pthread_t ioThread;
-	
+
 	// create a thread to run the event loop...
-	
-	pthread_create( &ioThread, NULL, StartEventLoop, (void *)this );
-	
+
+	pthread_create(&ioThread, NULL, StartEventLoop, (void *) this);
+
 	return 0;
 }
 
 void * StartEventLoop(void *arg)
 {
-	hnDisplayTTY *display = (hnDisplayTTY *)arg;
-	
+	hnDisplayTTY *display = (hnDisplayTTY *) arg;
+
 	display->EventLoop();
 
 	return 0;
 }
 
-void
-hnDisplayTTY::EventLoop()
+void hnDisplayTTY::EventLoop()
 {
-	
+
 #ifdef __DEBUGGING_NETWORK__
 	MoveCommand(DIR_West);
 	//m_client->SendTalk("Hoi!");
 #endif	
 
-	while ( !m_done )
+	while (!m_done)
 	{
 		int commandkey = getch();
 
-		switch( m_mode )
+		switch (m_mode)
 		{
-			case MODE_Normal:
-				if ( m_awaitingMore )
-					HandleKeypressMore( commandkey );
-				else
-					HandleKeypressNormal( commandkey );
-				break;
-			case MODE_InventoryDisplay:
-			case MODE_FloorObjectDisplay:
-				HandleKeypressInventoryDisplay( commandkey );
-				break;
-			case MODE_FloorObjectSelect:
-			case MODE_InventorySelect:
-				HandleKeypressInventorySelect( commandkey );
-				break;
-			case MODE_Talking:
-				HandleKeypressTalking( commandkey );
-				break;
+		case MODE_Normal:
+			if (m_awaitingMore)
+				HandleKeypressMore(commandkey);
+			else
+				HandleKeypressNormal(commandkey);
+			break;
+		case MODE_InventoryDisplay:
+		case MODE_FloorObjectDisplay:
+			HandleKeypressInventoryDisplay(commandkey);
+			break;
+		case MODE_FloorObjectSelect:
+		case MODE_InventorySelect:
+			HandleKeypressInventorySelect(commandkey);
+			break;
+		case MODE_Talking:
+			HandleKeypressTalking(commandkey);
+			break;
 		}
 		Refresh();
 	}
@@ -142,8 +140,7 @@ hnDisplayTTY::EventLoop()
 	m_client->Disconnect();
 }
 
-void
-hnDisplayTTY::HandleKeypressNormal(int commandkey)
+void hnDisplayTTY::HandleKeypressNormal(int commandkey)
 {
 //----------------------------------------------------------------------
 //  TODO:  There must be a cleaner way to do this than using this massive
@@ -152,119 +149,123 @@ hnDisplayTTY::HandleKeypressNormal(int commandkey)
 //----------------------------------------------------------------------
 
 	PostTurnSubmit();
-			
-	switch( commandkey )
-	{ 
-		case 'p':
-			m_messageDisplayLine = (m_messageDisplayLine==0)?0:m_messageDisplayLine-1;
-			m_needsRefresh = true;
-			break;
-		case 'Q':
-			m_client->SendQuit(false);
-			m_done = true;
-			break;
-		case '"':
-			m_mode = MODE_Talking;
-			m_needsRefresh = true;		// need to print prompt on screen
-			break;
-		case 'h':
-		case '4':
-		case KEY_LEFT:
-			MoveCommand(DIR_West);
-			break;
-		case 'j':
-		case '2':
-		case KEY_DOWN:
-			MoveCommand(DIR_South);
-			break;
-		case 'k':
-		case '8':
-		case KEY_UP:
-			MoveCommand(DIR_North);
-			break;
-		case '6':
-		case 'l':
-		case KEY_RIGHT:
-			MoveCommand(DIR_East);
-			break;
-		case '9':
-		case 'u':
-		case KEY_A3:
-			MoveCommand(DIR_NorthEast);
-			break;
-		case '7':
-		case 'y':
-		case KEY_A1:
-			MoveCommand(DIR_NorthWest);
-			break;
-		case '3':
-		case 'n':
-		case KEY_C1:
-			MoveCommand(DIR_SouthEast);
-			break;
-		case '1':
-		case 'b':
-		case KEY_C3:
-			MoveCommand(DIR_SouthWest);
-			break;
-		case '>':
-			MoveCommand(DIR_Down);
-			break;
-		case '<':
-			MoveCommand(DIR_Up);
-			break;
-		case '.':
-		case ' ':
-		case KEY_B2:
-			WaitCommand();
-			break;
-		
-		case 'w':
-			HandleWield();
-			break;
-		case 'W':
-			HandleWear();
-			break;
-		case 'T':
-			HandleTakeOff();
-			break;
-		case 'P':
-			HandlePutOn();
-			break;
-		case 'R':
-			HandleRemove();
-			break;
-		case 'q':
-			HandleQuaff();
-			break;
-		case 'e':
-			HandleEat();
-			break;
-		case 'd':
-			HandleDrop();
-			break;
-		case 'i':
-			HandleInventory();
-			break;
-		case ',':
-			HandleTake();
-			break;
-		default:
-			TextMessage("Unknown keypress.\n");
-			//printf("Got unknown keypress.\n");
-			break;
+
+	switch (commandkey)
+	{
+	case 'p':
+		m_messageDisplayLine =
+				(m_messageDisplayLine == 0) ? 0 : m_messageDisplayLine - 1;
+		m_needsRefresh = true;
+		break;
+	case 'Q':
+		m_client->SendQuit(false);
+		m_done = true;
+		break;
+	case 'S':
+		m_client->SendQuit(true);
+		m_done = true;
+		break;
+	case '"':
+		m_mode = MODE_Talking;
+		m_needsRefresh = true; // need to print prompt on screen
+		break;
+	case 'h':
+	case '4':
+	case KEY_LEFT:
+		MoveCommand(DIR_West);
+		break;
+	case 'j':
+	case '2':
+	case KEY_DOWN:
+		MoveCommand(DIR_South);
+		break;
+	case 'k':
+	case '8':
+	case KEY_UP:
+		MoveCommand(DIR_North);
+		break;
+	case '6':
+	case 'l':
+	case KEY_RIGHT:
+		MoveCommand(DIR_East);
+		break;
+	case '9':
+	case 'u':
+	case KEY_A3:
+		MoveCommand(DIR_NorthEast);
+		break;
+	case '7':
+	case 'y':
+	case KEY_A1:
+		MoveCommand(DIR_NorthWest);
+		break;
+	case '3':
+	case 'n':
+	case KEY_C1:
+		MoveCommand(DIR_SouthEast);
+		break;
+	case '1':
+	case 'b':
+	case KEY_C3:
+		MoveCommand(DIR_SouthWest);
+		break;
+	case '>':
+		MoveCommand(DIR_Down);
+		break;
+	case '<':
+		MoveCommand(DIR_Up);
+		break;
+	case '.':
+	case ' ':
+	case KEY_B2:
+		WaitCommand();
+		break;
+
+	case 'w':
+		HandleWield();
+		break;
+	case 'W':
+		HandleWear();
+		break;
+	case 'T':
+		HandleTakeOff();
+		break;
+	case 'P':
+		HandlePutOn();
+		break;
+	case 'R':
+		HandleRemove();
+		break;
+	case 'q':
+		HandleQuaff();
+		break;
+	case 'e':
+		HandleEat();
+		break;
+	case 'd':
+		HandleDrop();
+		break;
+	case 'i':
+		HandleInventory();
+		break;
+	case ',':
+		HandleTake();
+		break;
+	default:
+		TextMessage("Unknown keypress.\n");
+		//printf("Got unknown keypress.\n");
+		break;
 	}
 }
 
-void
-hnDisplayTTY::HandleKeypressMore( int commandKey )
+void hnDisplayTTY::HandleKeypressMore(int commandKey)
 {
 	//----------------------------------------------------------
 	//  Should we be checking to see what key is hit?
 	//  Currently, ANY key will advance to the next line.
 	//----------------------------------------------------------
 
-	if ( ++m_messageDisplayLine < m_messageLines-1 )
+	if (++m_messageDisplayLine < m_messageLines - 1)
 	{
 		//----------------------------------------------------------
 		// we have yet another 'more' line.
@@ -278,43 +279,39 @@ hnDisplayTTY::HandleKeypressMore( int commandKey )
 	{
 		m_awaitingMore = false;
 	}
-	m_needsRefresh = true;		// need to show next line.
+	m_needsRefresh = true; // need to show next line.
 }
 
-void
-hnDisplayTTY::HandleKeypressInventoryDisplay( int commandKey )
+void hnDisplayTTY::HandleKeypressInventoryDisplay(int commandKey)
 {
-	switch ( commandKey )
+	switch (commandKey)
 	{
-		default:
-			// TODO:  Check commandkey is a valid alphanumeric character!
-			m_mode = MODE_Normal;
-			m_needsRefresh = true;
-			break;
+	default:
+		// TODO:  Check commandkey is a valid alphanumeric character!
+		m_mode = MODE_Normal;
+		m_needsRefresh = true;
+		break;
 	}
 }
 
-void
-hnDisplayTTY::HandleKeypressInventorySelect( int commandKey )
+void hnDisplayTTY::HandleKeypressInventorySelect(int commandKey)
 {
 	const char inventoryLetters[56] =
-	{
-		'a','b','c','d','e','f','g','h','i','j','k','l','m',
-		'n','o','p','q','r','s','t','u','v','w','x','y','z',
-		'A','B','C','D','E','F','G','H','I','J','K','L','M',
-		'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
-	};
+	{ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+			'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B',
+			'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+			'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
 	sint8 inventorySelected = -1;
-	
-	for ( int i = 0; i < 56; i++ )
+
+	for (int i = 0; i < 56; i++)
 	{
-		if ( inventoryLetters[i] == commandKey )
+		if (inventoryLetters[i] == commandKey)
 		{
 			inventorySelected = i;
 			break;
 		}
 	}
-	if ( m_inventoryMode == ISM_Wield && commandKey == '-')
+	if (m_inventoryMode == ISM_Wield && commandKey == '-')
 	{
 		// we've asked to unwield our weapon, so send an
 		// illegal inventory slot.
@@ -324,76 +321,78 @@ hnDisplayTTY::HandleKeypressInventorySelect( int commandKey )
 		m_needsRefresh = true;
 	}
 
-	if ( inventorySelected != -1 )
+	if (inventorySelected != -1)
 	{
-		if ( m_inventoryMode != ISM_Take )
+		if (m_inventoryMode != ISM_Take)
 		{
-			if ( m_inventory[inventorySelected].count > 0 )
+			if (m_inventory[inventorySelected].count > 0)
 			{
 				m_needsRefresh = true;
-			
-				switch( m_inventoryMode )
+
+				switch (m_inventoryMode)
 				{
-					case ISM_Wield:
-						if ( !(m_inventory[inventorySelected].flags & FLAG_WieldedPrimary) )	// if we're not already wielding this item...
-						{
-							WieldCommand(inventorySelected);
-							m_mode = MODE_Normal;
-						}
-						else
-							TextMessage("You're already wielding that!");
-						break;
-					case ISM_Wear:
-					case ISM_PutOn:
-						if ( !(m_inventory[inventorySelected].flags & FLAG_Worn) ) // if we're not already wearing this item...
-						{
-							WearCommand(inventorySelected);
-							m_mode = MODE_Normal;
-						}
-						else
-							TextMessage("You're already wearing that!");
-						break;
-					case ISM_TakeOff:
-					case ISM_Remove:
-						if ( (m_inventory[inventorySelected].flags & FLAG_Worn) ) // if we're wearing this item...
-						{
-							RemoveCommand(inventorySelected);
-							m_mode = MODE_Normal;
-						}
-						else
-							TextMessage("You're not wearing that!");
-						break;
-					case ISM_Quaff:
-						if ( m_inventory[inventorySelected].type == OBJ_TYPE_Potion )
-						{
-							QuaffCommand(inventorySelected);
-							m_mode = MODE_Normal;
-						}
-						else
-							TextMessage("You can't quaff that!");
-						break;
-					case ISM_Eat:
-						if ( m_inventory[inventorySelected].type == OBJ_TYPE_Food )
-						{
-							EatCommand(inventorySelected);
-							m_mode = MODE_Normal;
-						}
-						else
-							TextMessage("You can't eat that!");
-						break;
-					case ISM_Drop:
+				case ISM_Wield:
+					if (!(m_inventory[inventorySelected].flags
+							& FLAG_WieldedPrimary)) // if we're not already wielding this item...
+					{
+						WieldCommand(inventorySelected);
 						m_mode = MODE_Normal;
-						DropCommand(inventorySelected);
-						break;
-					default:
-						break;
+					}
+					else
+						TextMessage("You're already wielding that!");
+					break;
+				case ISM_Wear:
+				case ISM_PutOn:
+					if (!(m_inventory[inventorySelected].flags & FLAG_Worn)) // if we're not already wearing this item...
+					{
+						WearCommand(inventorySelected);
+						m_mode = MODE_Normal;
+					}
+					else
+						TextMessage("You're already wearing that!");
+					break;
+				case ISM_TakeOff:
+				case ISM_Remove:
+					if ((m_inventory[inventorySelected].flags & FLAG_Worn)) // if we're wearing this item...
+					{
+						RemoveCommand(inventorySelected);
+						m_mode = MODE_Normal;
+					}
+					else
+						TextMessage("You're not wearing that!");
+					break;
+				case ISM_Quaff:
+					if (m_inventory[inventorySelected].type == OBJ_TYPE_Potion)
+					{
+						QuaffCommand(inventorySelected);
+						m_mode = MODE_Normal;
+					}
+					else
+						TextMessage("You can't quaff that!");
+					break;
+				case ISM_Eat:
+					if (m_inventory[inventorySelected].type == OBJ_TYPE_Food)
+					{
+						EatCommand(inventorySelected);
+						m_mode = MODE_Normal;
+					}
+					else
+						TextMessage("You can't eat that!");
+					break;
+				case ISM_Drop:
+					m_mode = MODE_Normal;
+					DropCommand(inventorySelected);
+					break;
+				default:
+					break;
 				}
 			}
 		}
-		else	// we're in take mode, so check against objects on floor.
+		else // we're in take mode, so check against objects on floor.
 		{
-			mapClientTile &tile = m_map[m_position.z]->MapTile(m_position.x,m_position.y);
-			if ( inventorySelected < tile.objectCount )
+			mapClientTile &tile = m_map[m_position.z]->MapTile(m_position.x,
+					m_position.y);
+			if (inventorySelected < tile.objectCount)
 			{
 				m_mode = MODE_Normal;
 				m_needsRefresh = true;
@@ -402,69 +401,66 @@ hnDisplayTTY::HandleKeypressInventorySelect( int commandKey )
 			}
 		}
 	}
-	
-	switch ( commandKey )
+
+	switch (commandKey)
 	{
-		default:
-			m_mode = MODE_Normal;
-			m_needsRefresh = true;
-			break;
+	default:
+		m_mode = MODE_Normal;
+		m_needsRefresh = true;
+		break;
 	}
 }
 
-void
-hnDisplayTTY::HandleKeypressTalking( int commandKey )
+void hnDisplayTTY::HandleKeypressTalking(int commandKey)
 {
-	switch ( commandKey )
+	switch (commandKey)
 	{
-		case '\r':				// other characters I should be checking for here?
-		case KEY_ENTER:
-			m_mode = MODE_Normal;		 
-			m_client->SendTalk( m_talkBuffer );
-			m_talkLength = 0;
-			m_talkBuffer[0]='\0';
-			m_needsRefresh = true;		// get rid of prompts
-			// transmit the string now!
-			break;
-		case KEY_BACKSPACE:
-			if ( m_talkLength > 0 )
-			{
-				m_talkLength--;
-				m_talkBuffer[m_talkLength] = '\0';
-			}
+	case '\r': // other characters I should be checking for here?
+	case KEY_ENTER:
+		m_mode = MODE_Normal;
+		m_client->SendTalk(m_talkBuffer);
+		m_talkLength = 0;
+		m_talkBuffer[0] = '\0';
+		m_needsRefresh = true; // get rid of prompts
+		// transmit the string now!
+		break;
+	case KEY_BACKSPACE:
+		if (m_talkLength > 0)
+		{
+			m_talkLength--;
+			m_talkBuffer[m_talkLength] = '\0';
+		}
+		m_needsRefresh = true;
+		break;
+	default:
+		// TODO:  Check commandkey is a valid alphanumeric character!
+
+		if (m_talkLength < MAX_TALK_BYTES - 1)
+		{
+			m_talkBuffer[m_talkLength] = commandKey;
+			m_talkBuffer[m_talkLength + 1] = '\0';
+			m_talkLength++;
 			m_needsRefresh = true;
-			break;
-		default:
-			// TODO:  Check commandkey is a valid alphanumeric character!
-			
-			if ( m_talkLength < MAX_TALK_BYTES-1 )
-			{
-				m_talkBuffer[m_talkLength] = commandKey;
-				m_talkBuffer[m_talkLength+1] = '\0';
-				m_talkLength++;
-				m_needsRefresh = true;
-			}
-			break;
+		}
+		break;
 	}
 }
 
-
-void
-hnDisplayTTY::HandleTake()
+void hnDisplayTTY::HandleTake()
 {
 	// we've requested to take something.  If there's something
 	// here to take, grab it.  TODO:  Implement 'take' properly!
-	
+
 	mapClient * myMap = m_map[m_position.z];
 
-	if ( myMap )
+	if (myMap)
 	{
 		mapClientTile myTile = myMap->MapTile(m_position.x, m_position.y);
 
-		if ( myTile.objectCount == 0 )
+		if (myTile.objectCount == 0)
 			TextMessage("There is nothing here to pick up.");
-		else if ( myTile.objectCount == 1 )
-			TakeCommand( myTile.object, 0 );
+		else if (myTile.objectCount == 1)
+			TakeCommand(myTile.object, 0);
 		else
 		{
 			m_mode = MODE_FloorObjectSelect;
@@ -474,14 +470,13 @@ hnDisplayTTY::HandleTake()
 	}
 }
 
-void
-hnDisplayTTY::HandleDrop()
+void hnDisplayTTY::HandleDrop()
 {
 	// we've requested to drop something.  If we have an
 	// inventory, drop the topmost item in it.
 	// TODO: Check to see if there's at least one item in the inventory!
-	
-	if ( m_inventoryCount == 0 )
+
+	if (m_inventoryCount == 0)
 		TextMessage("You are empty-handed.");
 	else
 	{
@@ -492,13 +487,12 @@ hnDisplayTTY::HandleDrop()
 	}
 }
 
-void
-hnDisplayTTY::HandleWield()
+void hnDisplayTTY::HandleWield()
 {
 	// we've had a wield command issued -- bring up the inventory
 	// select screen in wield mode.
-	
-	if ( m_inventoryCount == 0 )
+
+	if (m_inventoryCount == 0)
 		TextMessage("You are empty-handed.");
 	else
 	{
@@ -509,12 +503,11 @@ hnDisplayTTY::HandleWield()
 	}
 }
 
-void
-hnDisplayTTY::HandleWear()
+void hnDisplayTTY::HandleWear()
 {
 	// we've requested to wear something.
-	
-	if ( m_inventoryCount == 0 )
+
+	if (m_inventoryCount == 0)
 		TextMessage("You are empty-handed.");
 	else
 	{
@@ -525,11 +518,9 @@ hnDisplayTTY::HandleWear()
 	}
 }
 
-
-void
-hnDisplayTTY::HandlePutOn()
+void hnDisplayTTY::HandlePutOn()
 {
-	if ( m_inventoryCount == 0 )
+	if (m_inventoryCount == 0)
 		TextMessage("You are empty-handed.");
 	else
 	{
@@ -540,10 +531,9 @@ hnDisplayTTY::HandlePutOn()
 	}
 }
 
-void
-hnDisplayTTY::HandleRemove()
+void hnDisplayTTY::HandleRemove()
 {
-	if ( m_inventoryCount == 0 )
+	if (m_inventoryCount == 0)
 		TextMessage("You are empty-handed.");
 	else
 	{
@@ -554,13 +544,11 @@ hnDisplayTTY::HandleRemove()
 	}
 }
 
-
-void
-hnDisplayTTY::HandleQuaff()
+void hnDisplayTTY::HandleQuaff()
 {
-	int legalItems = CountInventoryItemsWithFlags( FLAG_Quaffable );
-	
-	if ( legalItems == 0 )
+	int legalItems = CountInventoryItemsWithFlags(FLAG_Quaffable);
+
+	if (legalItems == 0)
 		TextMessage("You don't have anything to drink");
 	else
 	{
@@ -571,11 +559,10 @@ hnDisplayTTY::HandleQuaff()
 	}
 }
 
-void
-hnDisplayTTY::HandleEat()
-{	
-	int legalItems = CountInventoryItemsWithFlags( FLAG_Eatable );
-	if ( legalItems == 0 )
+void hnDisplayTTY::HandleEat()
+{
+	int legalItems = CountInventoryItemsWithFlags(FLAG_Eatable);
+	if (legalItems == 0)
 		TextMessage("You don't have anything to eat.");
 	else
 	{
@@ -586,15 +573,13 @@ hnDisplayTTY::HandleEat()
 	}
 }
 
-
-void
-hnDisplayTTY::HandleTakeOff()
+void hnDisplayTTY::HandleTakeOff()
 {
 	// we've requested to drop something.  If we have an
 	// inventory, drop the topmost item in it.
 	// TODO: Check to see if there's at least one item in the inventory!
-	
-	if ( m_inventoryCount == 0 )
+
+	if (m_inventoryCount == 0)
 		TextMessage("Not wearing any armor.");
 	else
 	{
@@ -605,15 +590,12 @@ hnDisplayTTY::HandleTakeOff()
 	}
 }
 
-
-
-void
-hnDisplayTTY::HandleInventory()
+void hnDisplayTTY::HandleInventory()
 {
 	// for now, just show the topmost item in our inventory, just to
 	// prove that the data is actually being sent.
 
-	if ( m_inventoryCount == 0 )
+	if (m_inventoryCount == 0)
 		TextMessage("Not carrying anything.");
 	else
 	{
@@ -628,325 +610,322 @@ hnDisplayTTY::HandleInventory()
 //  TODO:  We probably need to change this function name to make it
 //  more obvious what it's doing.
 //--------------------------------------------------------------------
-void
-hnDisplayTTY::UpdateLocation( const hnPoint &point )
+void hnDisplayTTY::UpdateLocation(const hnPoint &point)
 {
 	hnDisplay::UpdateLocation(point);
 }
 
-
 //--------------------------------------------------------------------
 //  Plot an individual square of the map to the screen.
 //--------------------------------------------------------------------
-void
-hnDisplayTTY::PlotSquare(sint8 x, sint8 y)
+void hnDisplayTTY::PlotSquare(sint8 x, sint8 y)
 {
-	hnMaterialType floorType = m_map[m_position.z]->MaterialAt(x,y);
-	hnWallType wallType = m_map[m_position.z]->WallAt(x,y);
-	
-	
+	hnMaterialType floorType = m_map[m_position.z]->MaterialAt(x, y);
+	hnWallType wallType = m_map[m_position.z]->WallAt(x, y);
+
 	//  TODO:  Make this whole function smarter!  Fewer tables, fewer switch statements!
 
 	/*const char floorTileChar[] ={
-		'?',
-		'.',
-		' ',
-		'#',
-		'.',
-		'{',
-		'^',
-		' '
-	};*/
+	 '?',
+	 '.',
+	 ' ',
+	 '#',
+	 '.',
+	 '{',
+	 '^',
+	 ' '
+	 };*/
 
-	const char floorTileColor[] ={
-		COLOR_WHITE,
-		COLOR_WHITE,
-		COLOR_WHITE,
-		COLOR_WHITE,
-		COLOR_BLUE,
-		COLOR_BLUE,
-		COLOR_RED,
-		COLOR_WHITE
-	};
+	const char floorTileColor[] =
+	{ COLOR_WHITE, COLOR_WHITE, COLOR_WHITE, COLOR_WHITE, COLOR_BLUE,
+			COLOR_BLUE, COLOR_RED, COLOR_WHITE };
 
 	// todo:  Adjust display for walls
 #ifndef __DEBUGGING_NETWORK__
-	
-	char theChar = ' ';
 
+	char theChar = ' ';
 
 	switch (wallType)
 	{
-		case WALL_Vertical:
-			theChar = '|';
-			break;
-		case WALL_Horizontal:
-			theChar = '-';
-			break;
-		case WALL_Cross:
-			theChar = '-';
-			break;
-		case WALL_Corridor:
-			theChar = '#';
-			break;
-		case WALL_Room:
-		case WALL_Doorway:
-			theChar = '.';
-			break;
-		case WALL_StairsUp:
-			theChar = '<';
-			break;
-		case WALL_StairsDown:
-			theChar = '>';
-			break;
-		default:
-			theChar = wallType;
-			break;
+	case WALL_Vertical:
+		theChar = '|';
+		break;
+	case WALL_Horizontal:
+		theChar = '-';
+		break;
+	case WALL_Cross:
+		theChar = '-';
+		break;
+	case WALL_Corridor:
+		theChar = '#';
+		break;
+	case WALL_Room:
+	case WALL_Doorway:
+		theChar = '.';
+		break;
+	case WALL_StairsUp:
+		theChar = '<';
+		break;
+	case WALL_StairsDown:
+		theChar = '>';
+		break;
+	default:
+		theChar = wallType;
+		break;
 	}
-	
-	if ( x >= 0 && x < m_map[m_position.z]->GetWidth() && y >= 0 && y < m_map[m_position.z]->GetHeight() )
+
+	if (x >= 0 && x < m_map[m_position.z]->GetWidth() && y >= 0
+			&& y < m_map[m_position.z]->GetHeight())
 	{
-		mapClientTile & tile = m_map[m_position.z]->MapTile(x,y);
-		color_set( floorTileColor[floorType],NULL);
-		
-		if ( tile.entity == ENTITY_Human )	// if someone is standing here...
+		mapClientTile & tile = m_map[m_position.z]->MapTile(x, y);
+		color_set( floorTileColor[floorType], NULL);
+
+		if (tile.entity == ENTITY_Human) // if someone is standing here...
 		{
-			color_set( COLOR_WHITE, NULL );
-			theChar = '@';			// draw '@' instead of ground.  This is a HACK!
+			color_set( COLOR_WHITE, NULL);
+			theChar = '@'; // draw '@' instead of ground.  This is a HACK!
 		}
-		else if ( tile.entity == ENTITY_GridBug )
+		else if (tile.entity == ENTITY_GridBug)
 		{
-			color_set( COLOR_MAGENTA, NULL );
+			color_set( COLOR_MAGENTA, NULL);
 			theChar = 'x';
 		}
-		else if ( tile.objectCount > 0 )
+		else if (tile.objectCount > 0)
 		{
 			// check the topmost object.
-			objType type =  tile.object[0].type;
+			objType type = tile.object[0].type;
 
-			const char objectTile[OBJ_TYPE_MAX] = {
-				'#',	// random
-				'#',	// illegal
-				' ',	// none
-				'"',	// amulet
-				')',	// weapon
-				'[',	// armour
-				'!',	// potion
-				'=',	// ring
-				'(',	// tool
-				'%',	// food
-				'?',	// scroll
-				'+',	// spellbook
-				'/',	// wand
-				'$',	// gold
-				'*',	// gem
-				'*',	// rock
-				'O',	// ball
-				'_',	// chain
-				',',	// venom
-			};
-			color_set( COLOR_WHITE, NULL );
+			const char objectTile[OBJ_TYPE_MAX] =
+			{ '#', // random
+					'#', // illegal
+					' ', // none
+					'"', // amulet
+					')', // weapon
+					'[', // armour
+					'!', // potion
+					'=', // ring
+					'(', // tool
+					'%', // food
+					'?', // scroll
+					'+', // spellbook
+					'/', // wand
+					'$', // gold
+					'*', // gem
+					'*', // rock
+					'O', // ball
+					'_', // chain
+					',', // venom
+					};
+			color_set( COLOR_WHITE, NULL);
 			theChar = objectTile[type];
 		}
-		mvaddch(y + 3,x,theChar);
-		move(m_position.y + 3,m_position.x);
+		mvaddch(y + 3, x, theChar);
+		move(m_position.y + 3, m_position.x);
 
 		m_needsRefresh = true;
 	}
 #endif
 }
 
-void
-hnDisplayTTY::UpdateMapTile(const hnPoint &point, const mapClientTile &tile)
+void hnDisplayTTY::UpdateMapTile(const hnPoint &point,
+		const mapClientTile &tile)
 {
-	hnDisplay::UpdateMapTile(point,tile);
+	hnDisplay::UpdateMapTile(point, tile);
 	m_needsRefresh = true;
 }
 
 //---  This function isn't actually used any more.  TODO:  Consider removing it.
-void
-hnDisplayTTY::UpdateMapCreature( const hnPoint &point, entType type )
+void hnDisplayTTY::UpdateMapCreature(const hnPoint &point, entType type)
 {
-	hnDisplay::UpdateMapCreature(point,type);
+	hnDisplay::UpdateMapCreature(point, type);
 	m_needsRefresh = true;
 }
 
 //--  Stick the passed message into our message buffer.  TODO:  Consider making this more like NetHack's
 //    message buffer, with cntrl-p to scroll back through previous messages.
-void
-hnDisplayTTY::TextMessage( const char * message )
+void hnDisplayTTY::TextMessage(const char * message)
 {
 	//----------------------------------------------------------------
 	//  If we're currently looking at a line, consider appending the
 	//  new message to whatever's the most recent line.  Otherwise, go
 	//  through the cases below, and just make this message a new line.
 	//----------------------------------------------------------------
-	if ( m_messageDisplayLine < m_messageLines )
+	if (m_messageDisplayLine < m_messageLines)
 	{
-		size_t messageLength = strlen( message );
-		size_t currentLineLength = strlen( m_messageBuffer[m_messageLines-1] );
-	
-		if ( currentLineLength + messageLength <= 78 )
+		size_t messageLength = strlen(message);
+		size_t currentLineLength = strlen(m_messageBuffer[m_messageLines - 1]);
+
+		if (currentLineLength + messageLength <= 78)
 		{
-			sprintf( m_messageBuffer[m_messageLines-1], "%s  %s", m_messageBuffer[m_messageLines-1], message );
+			sprintf(m_messageBuffer[m_messageLines - 1], "%s  %s",
+					m_messageBuffer[m_messageLines - 1], message);
 			m_needsRefresh = true;
 			return;
 		}
 	}
-	
-	if ( m_messageLines < MAX_MESSAGE_SCROLLBACK )
+
+	if (m_messageLines < MAX_MESSAGE_SCROLLBACK)
 	{
 		// we haven't filled up our set of lines yet, so just add us...
-		strncpy( m_messageBuffer[m_messageLines], message, MAX_MESSAGE_BYTES );
+		strncpy(m_messageBuffer[m_messageLines], message, MAX_MESSAGE_BYTES);
 		m_messageLines++;
 	}
 	else
 	{
 		// we're full, so scroll the lines up, then add us at the bottom.
-		for ( int i = 0; i < m_messageLines-1; i++ )
-			strncpy( m_messageBuffer[i], m_messageBuffer[i+1], MAX_MESSAGE_BYTES );
-		strncpy( m_messageBuffer[m_messageLines-1], message, MAX_MESSAGE_BYTES );	
+		for (int i = 0; i < m_messageLines - 1; i++)
+			strncpy(m_messageBuffer[i], m_messageBuffer[i + 1],
+					MAX_MESSAGE_BYTES);
+		strncpy(m_messageBuffer[m_messageLines - 1], message,
+				MAX_MESSAGE_BYTES);
 	}
-	
+
 	// if we're looking at a line further along than the new one
 	// (which means that we're not actually looking at anything),
 	// then reset us to look at this new line.
 	// otherwise, set our 'more' prompt.
-	if ( m_messageDisplayLine >= m_messageLines-1 )
-		m_messageDisplayLine = m_messageLines-1;
+	if (m_messageDisplayLine >= m_messageLines - 1)
+		m_messageDisplayLine = m_messageLines - 1;
 	else
 		m_awaitingMore = true;
-	
+
 	m_needsRefresh = true;
 }
 
-void
-hnDisplayTTY::UpdateGroupData( int groupMemberCount, int groupMemberTurnCount, bool submittedTurn )
+void hnDisplayTTY::UpdateGroupData(int groupMemberCount,
+		int groupMemberTurnCount, bool submittedTurn)
 {
-	hnDisplay::UpdateGroupData( groupMemberCount, groupMemberTurnCount, submittedTurn );
+	hnDisplay::UpdateGroupData(groupMemberCount, groupMemberTurnCount,
+			submittedTurn);
 
-	if ( (groupMemberCount != m_groupMemberCount) || (m_groupMemberCount > 1) )
+	if ((groupMemberCount != m_groupMemberCount) || (m_groupMemberCount > 1))
 		m_needsRefresh = true;
 }
 
-void
-hnDisplayTTY::Refresh()
+void hnDisplayTTY::Refresh()
 {
 	pthread_mutex_lock(&refresh_mutex);
-	
-	if ( m_needsRefresh )
+
+	if (m_needsRefresh)
 	{
 		hnDisplay::Refresh();
 #ifndef __DEBUGGING_NETWORK__
 		// redraw screen -- this is hackish.. TODO: Make a single function that does a full redraw,
 		// instead of repeatedly calling a single function for every point on the screen.
-		for ( int j = 0; j < m_map[m_position.z]->GetHeight(); j++ )
-			for ( int i = 0; i < m_map[m_position.z]->GetWidth(); i++ )
+		for (int j = 0; j < m_map[m_position.z]->GetHeight(); j++)
+			for (int i = 0; i < m_map[m_position.z]->GetWidth(); i++)
 			{
-				PlotSquare(i,j);
+				PlotSquare(i, j);
 			}
-		
+
 		// clear upper prompt area.
 		int maxy;
 		int maxx;
 		getmaxyx(stdscr, maxy, maxx);
 		// printf("Clearing screen for maxx:%i, maxy:%i\n", maxx, maxy);
-		for ( int j = 0; j < 3; j++ )
+		for (int j = 0; j < 3; j++)
 		{
-			for ( int i = 0; i < maxx; i++ )
+			for (int i = 0; i < maxx; i++)
 			{
-				mvaddch(j,i,' ');
+				mvaddch(j, i, ' ');
 			}
 		}
 		// clear lower prompt area
-		for ( int j = 23; j < 24; j++ )
+		for (int j = 23; j < 24; j++)
 		{
-			for ( int i = 0; i < maxx; i++ )
+			for (int i = 0; i < maxx; i++)
 			{
-				mvaddch(j,i,' ');
+				mvaddch(j, i, ' ');
 			}
 		}
 		maxx = maxy; // Get rid of compiler warning about unused variable maxy
-		
+
 		// do status bar
 
-		move( 22, 0 );
+		move(22, 0);
 		printw("%s     St:%d Dx:%d Co:%d In:%d Wi:%d Ch:%d", m_name,
-			m_status->GetStrength(), m_status->GetDexterity(), 
-			m_status->GetConstitution(), m_status->GetIntelligence(),
-			m_status->GetWisdom(), m_status->GetCharisma() );
-		move( 23, 0 );
+				m_status->GetStrength(), m_status->GetDexterity(),
+				m_status->GetConstitution(), m_status->GetIntelligence(),
+				m_status->GetWisdom(), m_status->GetCharisma());
+		move(23, 0);
 		printw("Dlvl: %d  $:%d  HP:%d(%d) Pw:%d(%d) AC:%d Xp:%d/%d",
-			m_position.z, 0, m_status->HitPoints(),
-			m_status->HitPointMax(), m_status->SpellPoints(),
-			m_status->SpellPointMax(), 10, 
-			m_status->ExperiencePoints(), m_status->Level() );
-		
-		if ( m_groupMemberCount > 1 )
+				m_position.z, 0, m_status->HitPoints(), m_status->HitPointMax(),
+				m_status->SpellPoints(), m_status->SpellPointMax(), 10,
+				m_status->ExperiencePoints(), m_status->Level());
+
+		if (m_groupMemberCount > 1)
 		{
-			printw("  Group Turns: %d/%d", m_groupMemberTurnCount, m_groupMemberCount);
-			if ( !m_submittedTurn && m_groupMemberTurnCount > 0 )	// if somebody's entered a turn and I haven't..
+			printw("  Group Turns: %d/%d", m_groupMemberTurnCount,
+					m_groupMemberCount);
+			if (!m_submittedTurn && m_groupMemberTurnCount > 0) // if somebody's entered a turn and I haven't..
 				printw("  (Waiting for you)");
 		}
 
 		// do upper prompts.
-		
+
 		/*for ( int i = 0; i < MAX_MESSAGE_LINES; i++ )
+		 {
+		 move( i, 0 );
+		 printw("%s", m_messageBuffer[i]);
+		 }*/
+		if (m_messageDisplayLine < m_messageLines)
 		{
-			move( i, 0 );
-			printw("%s", m_messageBuffer[i]);
-		}*/
-		if ( m_messageDisplayLine < m_messageLines )
-		{
-			move( 0, 0 );
+			move(0, 0);
 			printw("%s", m_messageBuffer[m_messageDisplayLine]);
-			if ( m_awaitingMore )
+			if (m_awaitingMore)
 			{
-				move( 1, 0 );
+				move(1, 0);
 				printw("--more--");
 			}
 		}
-		
-		if ( m_mode == MODE_Talking )
+
+		if (m_mode == MODE_Talking)
 		{
 			// draw our string in the top few lines..
-			
-			move( 2, 2 );
+
+			move(2, 2);
 			printw("Say: %s", m_talkBuffer);
 		}
 		else
 		{
 			// now put our cursor back onto us, when in normal mode.
-			move(m_position.y + 3,m_position.x);
+			move(m_position.y + 3, m_position.x);
 		}
 
-		if ( m_mode == MODE_InventoryDisplay ||
-			m_mode == MODE_InventorySelect )
+		if (m_mode == MODE_InventoryDisplay || m_mode == MODE_InventorySelect)
 		{
-			if ( m_inventoryMode == ISM_Wield )
-				DrawObjectArrayFiltered(m_inventory,m_inventoryCount,FLAG_Wieldable,true);
-			else if ( m_inventoryMode == ISM_Wear )
-				DrawObjectArrayFiltered(m_inventory,m_inventoryCount,FLAG_Wearable|FLAG_Worn,true);	// for whatever reason, NetHack shows both worn and wearable objects when you request to wear something.
-			else if ( m_inventoryMode == ISM_TakeOff )
-				DrawObjectArrayFiltered(m_inventory,m_inventoryCount,FLAG_Worn,true);
-			else if ( m_inventoryMode == ISM_PutOn )
-				DrawObjectArrayFiltered(m_inventory,m_inventoryCount,FLAG_Wearable|FLAG_Worn,true);	// for whatever reason, NetHack shows both worn and wearable objects when you request to wear something.
-			else if ( m_inventoryMode == ISM_Remove )
-				DrawObjectArrayFiltered(m_inventory,m_inventoryCount,FLAG_Worn,true);
-			else if ( m_inventoryMode == ISM_Quaff )
-				DrawObjectArrayFiltered(m_inventory,m_inventoryCount,FLAG_Quaffable,true);
-			else if ( m_inventoryMode == ISM_Eat )
-				DrawObjectArrayFiltered(m_inventory,m_inventoryCount,FLAG_Eatable,true);
+			if (m_inventoryMode == ISM_Wield)
+				DrawObjectArrayFiltered(m_inventory, m_inventoryCount,
+						FLAG_Wieldable, true);
+			else if (m_inventoryMode == ISM_Wear)
+				DrawObjectArrayFiltered(m_inventory, m_inventoryCount,
+						FLAG_Wearable | FLAG_Worn, true); // for whatever reason, NetHack shows both worn and wearable objects when you request to wear something.
+			else if (m_inventoryMode == ISM_TakeOff)
+				DrawObjectArrayFiltered(m_inventory, m_inventoryCount,
+						FLAG_Worn, true);
+			else if (m_inventoryMode == ISM_PutOn)
+				DrawObjectArrayFiltered(m_inventory, m_inventoryCount,
+						FLAG_Wearable | FLAG_Worn, true); // for whatever reason, NetHack shows both worn and wearable objects when you request to wear something.
+			else if (m_inventoryMode == ISM_Remove)
+				DrawObjectArrayFiltered(m_inventory, m_inventoryCount,
+						FLAG_Worn, true);
+			else if (m_inventoryMode == ISM_Quaff)
+				DrawObjectArrayFiltered(m_inventory, m_inventoryCount,
+						FLAG_Quaffable, true);
+			else if (m_inventoryMode == ISM_Eat)
+				DrawObjectArrayFiltered(m_inventory, m_inventoryCount,
+						FLAG_Eatable, true);
 			else
-				DrawObjectArray(m_inventory,m_inventoryCount,true);
+				DrawObjectArray(m_inventory, m_inventoryCount, true);
 		}
-		else if ( m_mode == MODE_FloorObjectDisplay ||
-			m_mode == MODE_FloorObjectSelect )
+		else if (m_mode == MODE_FloorObjectDisplay
+				|| m_mode == MODE_FloorObjectSelect)
 		{
-			mapClientTile &tile = m_map[m_position.z]->MapTile(m_position.x,m_position.y);
-			DrawObjectArray(tile.object, tile.objectCount,false);
+			mapClientTile &tile = m_map[m_position.z]->MapTile(m_position.x,
+					m_position.y);
+			DrawObjectArray(tile.object, tile.objectCount, false);
 		}
-	
+
 		refresh();
 #endif
 		m_needsRefresh = false;
@@ -955,74 +934,75 @@ hnDisplayTTY::Refresh()
 	pthread_mutex_unlock(&refresh_mutex);
 }
 
-void
-hnDisplayTTY::DisplayItems()
+void hnDisplayTTY::DisplayItems()
 {
-        if ( m_map[m_position.z] )
-        {
-                int objCount = m_map[m_position.z]->MapTile(m_position.x, m_position.y).objectCount;
+	if (m_map[m_position.z])
+	{
+		int objCount =
+				m_map[m_position.z]->MapTile(m_position.x, m_position.y).objectCount;
 
-                if ( objCount > 0 )
-                {
-                        char buffer[256];
-                        
-                        objDescription topObject = m_map[m_position.z]->MapTile(m_position.x, m_position.y).object[0];
+		if (objCount > 0)
+		{
+			char buffer[256];
 
-                        if ( objCount > 3 )
+			objDescription topObject = m_map[m_position.z]->MapTile(
+					m_position.x, m_position.y).object[0];
+
+			if (objCount > 3)
 			{
-                                snprintf(buffer, 256, "There are several objects here." );
-                        	TextMessage(buffer);
+				snprintf(buffer, 256, "There are several objects here.");
+				TextMessage(buffer);
 			}
-                        else if ( objCount > 1 )
+			else if (objCount > 1)
 			{
 				m_mode = MODE_FloorObjectDisplay;
 				m_needsRefresh = true;
 			}
 			else
-                        {
-                                char objectDesc[256];
-				objRegistry::GetInstance()->GetObjectDescriptionText(topObject,objectDesc,256);
-                                snprintf(buffer, 256, "You see here %s.", objectDesc );
-                        	TextMessage(buffer);
-                        }
+			{
+				char objectDesc[256];
+				objRegistry::GetInstance()->GetObjectDescriptionText(topObject,
+						objectDesc, 256);
+				snprintf(buffer, 256, "You see here %s.", objectDesc);
+				TextMessage(buffer);
+			}
 
-                        //Refresh();	// we can't call this here -- we've already locked the Refresh function!
-                }
-        }
+			//Refresh();	// we can't call this here -- we've already locked the Refresh function!
+		}
+	}
 }
 
-uint8
-hnDisplayTTY::CountInventoryItemsWithFlags( uint16 flagFilter )
+uint8 hnDisplayTTY::CountInventoryItemsWithFlags(uint16 flagFilter)
 {
 	uint8 count = 0;
-	
-	for ( int i = 0; i < m_inventoryCount; i++ )
+
+	for (int i = 0; i < m_inventoryCount; i++)
 	{
-		if ( m_inventory[i].flags & flagFilter )
+		if (m_inventory[i].flags & flagFilter)
 			count++;
 	}
 
 	return count;
 }
 
-void
-hnDisplayTTY::DrawObjectArray(objDescription *objects, uint8 objectCount, bool inventory)
+void hnDisplayTTY::DrawObjectArray(objDescription *objects, uint8 objectCount,
+		bool inventory)
 {
 	DrawObjectArrayFiltered(objects, objectCount, 0, inventory);
 }
 
-void
-hnDisplayTTY::DrawObjectArrayFiltered(objDescription *objects,uint8 objectCount,uint16 flagFilter,bool inventory)
+void hnDisplayTTY::DrawObjectArrayFiltered(objDescription *objects,
+		uint8 objectCount, uint16 flagFilter, bool inventory)
 {
 	/*
-	const char inventoryLetters[56] =
-	{
-		'a','b','c','d','e','f','g','h','i','j','k','l','m',
-		'n','o','p','q','r','s','t','u','v','w','x','y','z',
-		'A','B','C','D','E','F','G','H','I','J','K','L','M',
-		'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
-	};
-	*/
+	 const char inventoryLetters[56] =
+	 {
+	 'a','b','c','d','e','f','g','h','i','j','k','l','m',
+	 'n','o','p','q','r','s','t','u','v','w','x','y','z',
+	 'A','B','C','D','E','F','G','H','I','J','K','L','M',
+	 'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
+	 };
+	 */
 
 	int x = 24;
 	int y = 0;
@@ -1033,85 +1013,67 @@ hnDisplayTTY::DrawObjectArrayFiltered(objDescription *objects,uint8 objectCount,
 #define CATEGORY_COUNT (11)
 
 	const char * categoryName[CATEGORY_COUNT] =
-	{
-		"Amulets",
-		"Weapons",
-		"Armour",
-		"Comestibles",
-		"Scrolls",
-		"Spellbooks",
-		"Potions",
-		"Rings",
-		"Wands",
-		"Tools",
-		"Gems"
-	};
+	{ "Amulets", "Weapons", "Armour", "Comestibles", "Scrolls", "Spellbooks",
+			"Potions", "Rings", "Wands", "Tools", "Gems" };
 
 	const objType categoryValue[CATEGORY_COUNT] =
-	{
-		OBJ_TYPE_Amulet,
-		OBJ_TYPE_Weapon,
-		OBJ_TYPE_Armour,
-		OBJ_TYPE_Food,
-		OBJ_TYPE_Scroll,
-		OBJ_TYPE_Spellbook,
-		OBJ_TYPE_Potion,
-		OBJ_TYPE_Ring,
-		OBJ_TYPE_Wand,
-		OBJ_TYPE_Tool,
-		OBJ_TYPE_Gem
-	};
+	{ OBJ_TYPE_Amulet, OBJ_TYPE_Weapon, OBJ_TYPE_Armour, OBJ_TYPE_Food,
+			OBJ_TYPE_Scroll, OBJ_TYPE_Spellbook, OBJ_TYPE_Potion, OBJ_TYPE_Ring,
+			OBJ_TYPE_Wand, OBJ_TYPE_Tool, OBJ_TYPE_Gem };
 
-	if ( m_mode == MODE_FloorObjectDisplay )
+	if (m_mode == MODE_FloorObjectDisplay)
 	{
-		move(y++,x);
+		move(y++, x);
 		printw("On the ground here:");
 		drawheaders = false;
 		drawletters = false;
 	}
-	
-	for ( int j = 0; j < CATEGORY_COUNT; j++ )
+
+	for (int j = 0; j < CATEGORY_COUNT; j++)
 	{
 		bool somethingInThisCategory = false;
-		
-		for ( int i = 0; i < objectCount; i++ )
+
+		for (int i = 0; i < objectCount; i++)
 		{
-			if ( objects[i].count > 0 && ((flagFilter==0) || (objects[i].flags & flagFilter)) && objRegistry::GetInstance()->GetType(objects[i].itemID) == categoryValue[j] )
+			if (objects[i].count > 0
+					&& ((flagFilter == 0) || (objects[i].flags & flagFilter))
+					&& objRegistry::GetInstance()->GetType(objects[i].itemID)
+							== categoryValue[j])
 			{
-				if ( !somethingInThisCategory && drawheaders )
+				if (!somethingInThisCategory && drawheaders)
 				{
-					move(y++,x);
-					color_set( COLOR_INVERSE, NULL );
+					move(y++, x);
+					color_set( COLOR_INVERSE, NULL);
 					printw("%s", categoryName[j]);
-					color_set( COLOR_WHITE, NULL );
+					color_set( COLOR_WHITE, NULL);
 					somethingInThisCategory = true;
 				}
-				move(y++,x);
-				
+				move(y++, x);
+
 				/*if ( inventory && m_wieldedItem == i )
-					printw("%c - %s (weapon in hands)", inventoryLetters[i], buffer);
-				else if ( drawletters )
-					printw("%c - %s", inventoryLetters[i], buffer);
-				*/
-				if ( drawletters )
+				 printw("%c - %s (weapon in hands)", inventoryLetters[i], buffer);
+				 else if ( drawletters )
+				 printw("%c - %s", inventoryLetters[i], buffer);
+				 */
+				if (drawletters)
 				{
-					GetInventoryItemText(i,buffer,256);
+					GetInventoryItemText(i, buffer, 256);
 					printw("%s", buffer);
-				}	
+				}
 				else
 				{
-					objRegistry::GetInstance()->GetObjectDescriptionText(objects[i],buffer,256);
+					objRegistry::GetInstance()->GetObjectDescriptionText(
+							objects[i], buffer, 256);
 					printw("%s", buffer);
 				}
 			}
 		}
 	}
-	move(y,x);
+	move(y, x);
 	printw("(end)");
 }
 
-void
-hnDisplayTTY::PostTurnSubmit()
+void hnDisplayTTY::PostTurnSubmit()
 {
 	//--------------------------------------------------------
 	//  We've just submitted a turn, so if we received a message

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <string>
 
 #include "HN_Game.h"
 #include "MAP_Hack.h"
@@ -20,10 +21,10 @@ hnGame * hnGame::s_instance = NULL;
 #define LEVEL_HEIGHT (18)
 #define MAX_LEVELS (5)
 
-void hnGame::Startup()
+void hnGame::Startup(std::string savePath)
 {
 	assert(s_instance == NULL);
-	s_instance = new hnGame;
+	s_instance = new hnGame(savePath);
 }
 
 void hnGame::Shutdown()
@@ -40,7 +41,8 @@ hnGame::GetInstance()
 	return s_instance;
 }
 
-hnGame::hnGame()
+hnGame::hnGame(std::string savePath):
+				m_SavePath(savePath)
 {
 // TODO:  This should be implemented in an entirely different way.
 //        I'm not sure what, yet.
@@ -404,4 +406,12 @@ void hnGame::ClientWait(int playerID)
 
 	player->Wait();
 	ClientTurn();
+}
+
+void hnGame::SaveGame()
+{
+	HN_Logger::LogInfo("Saving game to: %s.", m_SavePath.c_str());
+	hnDungeon::GetInstance()->SaveDungeon(m_SavePath + "/dungeon");
+
+	HN_Logger::LogInfo("Saving game to: %s Complete.", m_SavePath.c_str());
 }

@@ -1,6 +1,7 @@
 #ifndef __HN_GAME_H__
 #define __HN_GAME_H__
 
+#include <string>
 #include "HN_Config_Server.h"
 #include "HN_Enum.h"
 #include "HN_Point.h"
@@ -17,11 +18,13 @@ class hnGame
 
 	static hnGame * s_instance;
 
-	hnGame();
+	std::string m_SavePath;
+
+	hnGame(std::string savePath);
 	virtual ~hnGame();
 public:
 
-	static void Startup();
+	static void Startup(std::string savePath);
 	static void Shutdown();
 	static hnGame * GetInstance();
 
@@ -46,6 +49,8 @@ public:
 	void ClientMove(int clientID, hnDirection dir);
 	void ClientWait(int clientID);
 	void ClientAttack(int clientID, hnDirection dir);
+
+	void SaveGame();
 };
 
 #endif

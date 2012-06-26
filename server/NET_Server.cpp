@@ -369,9 +369,9 @@ bool netServer::ProcessClientPacket(int clientID, char *buffer,
 			break;
 		case CPT_Name:
 			okay = packet->ClientName(localbuffer, bufferSize);
-			m_game->ClientName(clientID, localbuffer, bufferSize);
 			HN_Logger::LogInfo("Client %d calls himself %s", clientID,
 					localbuffer);
+			m_game->ClientName(clientID, localbuffer, bufferSize);
 			break;
 		case CPT_RequestRefresh:
 			okay = packet->ClientRequestRefresh(level);
@@ -384,6 +384,7 @@ bool netServer::ProcessClientPacket(int clientID, char *buffer,
 			SendQuitConfirm(clientID);
 			DisconnectClientID(clientID);
 			HN_Logger::LogInfo("Disconnected client %d.", clientID);
+			m_game->SaveGame();
 			break;
 		case CPT_Quit:
 			okay = packet->ClientQuit();

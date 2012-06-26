@@ -1,6 +1,8 @@
 #ifndef __HN_DUNGEON_H__
 #define __HN_DUNGEON_H__
 
+#include <string>
+
 class mapBase;
 
 class hnDungeon
@@ -23,6 +25,8 @@ public:
 	{
 		return m_levelCount;
 	}
+
+	void SaveDungeon(std::string path);
 };
 
 #endif

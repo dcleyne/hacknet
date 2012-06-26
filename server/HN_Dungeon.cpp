@@ -63,10 +63,14 @@ hnDungeon::~hnDungeon()
 	delete[] m_levelMap;
 }
 
-hnDungeon *
-hnDungeon::GetInstance()
+hnDungeon* hnDungeon::GetInstance()
 {
 	assert( s_instance);
 
 	return s_instance;
+}
+
+void hnDungeon::SaveDungeon(std::string path)
+{
+
 }
