@@ -14,7 +14,8 @@ class hnGroup;
 
 struct queuedTurn
 {
-	enum turnType{
+	enum turnType
+	{
 		None,
 		Move,
 		Wait,
@@ -30,42 +31,51 @@ struct queuedTurn
 	};
 	int type;
 
-	union{
-		struct{
+	union
+	{
+		struct
+		{
 			hnDirection direction;
 		} move;
-		struct{
+		struct
+		{
 			hnDirection direction;
 		} attack;
-		struct{
+		struct
+		{
 			objBase * object;
 			objDescription desc;
 			uint8 takeCount;
 		} take;
-		struct{
+		struct
+		{
 			objBase * object;
 			objDescription desc;
 			uint8 dropCount;
 		} drop;
-		struct{
+		struct
+		{
 			objBase * object;
 			objDescription desc;
-			uint8	inventorySlot;
+			uint8 inventorySlot;
 		} wield;
-		struct{
+		struct
+		{
 			objBase * object;
 			objDescription desc;
-			uint8	inventorySlot;
+			uint8 inventorySlot;
 		} wear;
-		struct{
+		struct
+		{
 			objBase * object;
 			objDescription desc;
-			uint8	inventorySlot;
+			uint8 inventorySlot;
 		} remove;
-		struct{
+		struct
+		{
 			objBase * object;
 			objDescription desc;
-			uint8	inventorySlot;
+			uint8 inventorySlot;
 		} quaff;
 	};
 };
@@ -74,91 +84,96 @@ struct queuedTurn
 
 class hnPlayer
 {
-	char		m_name[MAX_PLAYER_NAME_BYTES];
-	
-	int		m_playerID;				// the ID the server assigns to us.  NOT TO BE SAVED.
-	entBase *	m_entity;
-	
-	mapClient **	m_map;
-	int		m_mapCount;
-	
-	objDescription 	m_clientInventory[INVENTORY_MAX];
-	objBase *	m_clientInventoryMapping[INVENTORY_MAX];
-	
-	hnGroup *	m_group;				// pointer to the group we're a part of.
-	
-	queuedTurn	m_queuedTurn;
-	queuedTurn	m_completedTurn;
-	
-	int		m_lastSentGroupPlayerCount;
-	int		m_lastSentGroupPlayerQueuedTurns;
+	char m_name[MAX_PLAYER_NAME_BYTES];
 
-	hnPoint		m_moveDestination;			// where will we be going?
-	bool		m_movePending;				// are we moving this turn?
-	
-	bool		m_statsChanged;
-	bool		m_hitPointsChanged;
-	bool		m_spellPointsChanged;
-	
+	int m_playerID; // the ID the server assigns to us.  NOT TO BE SAVED.
+	entBase * m_entity;
+
+	mapClient ** m_map;
+	int m_mapCount;
+
+	objDescription m_clientInventory[INVENTORY_MAX];
+	objBase * m_clientInventoryMapping[INVENTORY_MAX];
+
+	hnGroup * m_group; // pointer to the group we're a part of.
+
+	queuedTurn m_queuedTurn;
+	queuedTurn m_completedTurn;
+
+	int m_lastSentGroupPlayerCount;
+	int m_lastSentGroupPlayerQueuedTurns;
+
+	hnPoint m_moveDestination; // where will we be going?
+	bool m_movePending; // are we moving this turn?
+
+	bool m_statsChanged;
+	bool m_hitPointsChanged;
+	bool m_spellPointsChanged;
+
 public:
-			hnPlayer( int playerID, const hnPoint & where );
-	virtual		~hnPlayer();
-	
-	void		Die();
-	
-	void		SetName( char * name );
-	void		SetEntity( entBase *entity );
-	void		SetGroup( hnGroup * group ) { m_group = group; }
-	
-	const hnPoint &	GetPosition();
-	int		GetID() { return m_playerID; }
-	char *		GetName();
+	hnPlayer(int playerID, const hnPoint & where);
+	virtual ~hnPlayer();
 
-	void		GetFullName( char * buffer, int bufferSize );
+	void Die();
 
-	bool		IsAlive();
+	void SetName(char * name);
+	void SetEntity(entBase *entity);
+	void SetGroup(hnGroup * group)
+	{
+		m_group = group;
+	}
 
-	
-	bool		HasQueuedTurn();	// are we ready to process a turn?
-	virtual bool	IsValidMove( hnDirection dir );
-	virtual bool	IsValidAttack( hnDirection dir );
-	virtual bool	IsValidInventoryItem( const objDescription &object, uint8 inventoryDrop );
+	const hnPoint & GetPosition();
+	int GetID()
+	{
+		return m_playerID;
+	}
+	char * GetName();
 
-	virtual bool	IsValidTake( const objDescription &object, uint8 stackID );
-	objBase *	GetTakeTarget( const objDescription &object, uint8 stackID );
+	void GetFullName(char * buffer, int bufferSize);
 
-	virtual void	Listen( const hnPoint & position, char * message );
-	virtual void	Listen( char * message );
-	
-	virtual void	See( const hnPoint & position, char * message );
-	virtual void	See( const hnPoint & position, entBase * who, char * message );
-	
-	virtual bool	CanSee( const hnPoint & position );
-	
-	virtual void	DoAction();		// process our turn.
-	virtual void	DoMove();		// do any movement associated with the turn we just processed.
-	virtual void	RecalculateVision();	// calculate what we can see
-	virtual void	UpdateVision();		// check again what's in the squares we previously calculated we could see.
-	virtual void	SendUpdate();		// send all updates to client.
+	bool IsAlive();
 
-	virtual void	RefreshMap( int level );
-	void		SendMapData( const hnPoint2D &topLeft, const hnPoint2D &bottomRight, int level );
-	
-	
-	
+	bool HasQueuedTurn(); // are we ready to process a turn?
+	virtual bool IsValidMove(hnDirection dir);
+	virtual bool IsValidAttack(hnDirection dir);
+	virtual bool IsValidInventoryItem(const objDescription &object,
+			uint8 inventoryDrop);
+
+	virtual bool IsValidTake(const objDescription &object, uint8 stackID);
+	objBase * GetTakeTarget(const objDescription &object, uint8 stackID);
+
+	virtual void Listen(const hnPoint & position, char * message);
+	virtual void Listen(char * message);
+
+	virtual void See(const hnPoint & position, char * message);
+	virtual void See(const hnPoint & position, entBase * who, char * message);
+
+	virtual bool CanSee(const hnPoint & position);
+
+	virtual void DoAction(); // process our turn.
+	virtual void DoMove(); // do any movement associated with the turn we just processed.
+	virtual void RecalculateVision(); // calculate what we can see
+	virtual void UpdateVision(); // check again what's in the squares we previously calculated we could see.
+	virtual void SendUpdate(); // send all updates to client.
+
+	virtual void RefreshMap(int level);
+	void SendMapData(const hnPoint2D &topLeft, const hnPoint2D &bottomRight,
+			int level);
+
 	//  Queued Actions Beneath This Point ------------------------------------------
-	virtual void	Move( hnDirection dir );
-	virtual void	Attack( hnDirection dir );
-	virtual void	Take( const objDescription &desc, uint8 stackID );
-	virtual void	Drop( const objDescription &desc, uint8 inventorySlot );
-	virtual void	Wield( const objDescription &desc, uint8 inventorySlot );
-	virtual void	Wear( const objDescription &desc, uint8 inventorySlot );
-	virtual void	Remove( const objDescription &desc, uint8 inventorySlot );
-	virtual void	Quaff( const objDescription &desc, uint8 inventorySlot );
-	virtual void	Eat( const objDescription &desc, uint8 inventorySlot );
-	virtual void	UnWield( );
-	virtual void	Wait( );
-	
+	virtual void Move(hnDirection dir);
+	virtual void Attack(hnDirection dir);
+	virtual void Take(const objDescription &desc, uint8 stackID);
+	virtual void Drop(const objDescription &desc, uint8 inventorySlot);
+	virtual void Wield(const objDescription &desc, uint8 inventorySlot);
+	virtual void Wear(const objDescription &desc, uint8 inventorySlot);
+	virtual void Remove(const objDescription &desc, uint8 inventorySlot);
+	virtual void Quaff(const objDescription &desc, uint8 inventorySlot);
+	virtual void Eat(const objDescription &desc, uint8 inventorySlot);
+	virtual void UnWield();
+	virtual void Wait();
+
 };
 
 #endif

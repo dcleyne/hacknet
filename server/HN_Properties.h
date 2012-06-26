@@ -1,7 +1,8 @@
 #ifndef HN_PROPERTIES_H
 #define HN_PROPERTIES_H
 
-enum props{
+enum props
+{
 	PROP_Fire_Resistance,
 	PROP_Cold_Resistance,
 	PROP_Sleep_Resistance,
@@ -69,7 +70,7 @@ enum props{
 	PROP_Infravision,
 	PROP_Warn_Of_Monsters,
 	PROP_Detect_Monsters,
-	
+
 	PROP_Gain_Ability,
 	PROP_Restore_Ability,
 	PROP_Paralyse,
@@ -87,7 +88,7 @@ enum props{
 	PROP_Oil,
 	PROP_Acid,
 	PROP_Water,
-	
+
 	PROP_MAX
 };
 

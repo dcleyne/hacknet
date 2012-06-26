@@ -6,10 +6,10 @@
 class objArmour: public objBase
 {
 public:
-			objArmour( uint32 type );
-	virtual 	~objArmour();
+	objArmour(uint32 type);
+	virtual ~objArmour();
 
-	virtual bool	SetWorn(bool);
+	virtual bool SetWorn(bool);
 };
 
 #endif // OBJ_ARMOUR_H

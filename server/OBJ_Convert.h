@@ -1,6 +1,6 @@
 /*  OBJ_Convert.h
-     Contains necessary #defines to convert from NetHack-style
-     object property enums to HackNet-style object property enums  */
+ Contains necessary #defines to convert from NetHack-style
+ object property enums to HackNet-style object property enums  */
 
 #ifndef OBJ_CONVERT_H
 #define OBJ_CONVERT_H
@@ -62,7 +62,6 @@
 #define P_ESCAPE_SPELL		SKILL_EscapeSpell
 #define P_HEALING_SPELL		SKILL_HealingSpell
 #define P_DIVINATION_SPELL	SKILL_DivinationSpell
-
 
 /*  Armour Types  */
 
@@ -205,6 +204,5 @@
 #define BALL_CLASS		OBJ_TYPE_Ball
 #define CHAIN_CLASS		OBJ_TYPE_Chain
 #define VENOM_CLASS		OBJ_TYPE_Venom
-
 
 #endif  // OBJ_CONVERT_H

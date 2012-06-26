@@ -12,18 +12,15 @@
 #define NO_ATTACK {0,0,0,0}
 
 entPrototype g_entityPrototype[] =
-{
-	MONSTER("giant ant", ENTITY_Ant,
+{ MONSTER("giant ant", ENTITY_Ant,
 		LEVEL(2,18,3,0,Align_None), (Geno_Genocidable|Geno_SmallGroup),3,
-		ARRAY(	ATTACK(Attack_Bite, Damage_Physical, 1, 4),
-			NO_ATTACK, NO_ATTACK, NO_ATTACK, NO_ATTACK, NO_ATTACK ),
+		ARRAY( ATTACK(Attack_Bite, Damage_Physical, 1, 4),
+				NO_ATTACK, NO_ATTACK, NO_ATTACK, NO_ATTACK, NO_ATTACK ),
 		SIZE(10, 10, 0, Sound_Silent, Size_Tiny), 0, 0,
 		M1_Animal | M1_NoHands | M1_Oviparous | M1_Carnivore,
-		M2_Hostile, 0, Color_Brown)
-};
-
+		M2_Hostile, 0, Color_Brown) };
 
 int GetEntityDefinitionCount()
 {
-	return ( sizeof(g_entityPrototype) / sizeof(entPrototype) );
+	return (sizeof(g_entityPrototype) / sizeof(entPrototype));
 }

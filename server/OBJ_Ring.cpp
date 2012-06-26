@@ -5,37 +5,36 @@
 #include <stdio.h>
 #include <assert.h>
 
-objRing::objRing(uint32 id) : 
-	objBase(id)
+objRing::objRing(uint32 id) :
+		objBase(id)
 {
-	if ( !(m_flags & FLAG_Worn) )		// if we're not already worn..
-		m_flags |= FLAG_Wearable;	// set us as wearable.
+	if (!(m_flags & FLAG_Worn)) // if we're not already worn..
+		m_flags |= FLAG_Wearable; // set us as wearable.
 }
 
 objRing::~objRing()
 {
 }
 
-bool
-objRing::SetWorn(bool worn)
+bool objRing::SetWorn(bool worn)
 {
 	bool success = false;
-	
-	if ( FLAG_Worn )
+
+	if (FLAG_Worn)
 	{
 		bool alreadyWorn = ((m_flags & FLAG_Worn) != 0);
-		
-		if ( alreadyWorn != worn )
+
+		if (alreadyWorn != worn)
 		{
-			if ( worn )
+			if (worn)
 			{
-				m_flags |= FLAG_Worn;		// worn
-				m_flags &= ~FLAG_Wearable;	// no longer wearable
+				m_flags |= FLAG_Worn; // worn
+				m_flags &= ~FLAG_Wearable; // no longer wearable
 			}
 			else
 			{
-				m_flags &= ~FLAG_Worn;		// not worn
-				m_flags |= FLAG_Wearable;	// wearable again
+				m_flags &= ~FLAG_Worn; // not worn
+				m_flags |= FLAG_Wearable; // wearable again
 			}
 			success = true;
 		}

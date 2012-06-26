@@ -106,15 +106,16 @@ void hnGame::ClientJoined(int playerID)
 		{
 			netServer::GetInstance()->SendQuitConfirm(playerID);
 			netServer::GetInstance()->DisconnectClientID(playerID);
-			HN_Logger::LogInfo("ERROR:  Was unable to place client id %d.", playerID);
+			HN_Logger::LogInfo("ERROR:  Was unable to place client id %d.",
+					playerID);
 			return; // AIEE!!!  Couldn't place the player!
 		}
 
 	} while ((hnDungeon::GetLevel(z)->WallAt(x, y) & WALL_Any)
 			|| hnDungeon::GetLevel(z)->MapTile(x, y).entity != NULL);
 
-	HN_Logger::LogInfo("Setting playerID %d initial position to: (%d,%d,%d)", playerID, x,
-			y, z);
+	HN_Logger::LogInfo("Setting playerID %d initial position to: (%d,%d,%d)",
+			playerID, x, y, z);
 	m_player[playerID] = new hnPlayer(playerID, hnPoint(x, y, z));
 
 	// ----------------------------------------------------------------------------------
@@ -251,8 +252,8 @@ void hnGame::ClientTake(int playerID, objDescription &desc, uint8 stackID)
 
 void hnGame::ClientDrop(int playerID, objDescription &desc, uint8 inventorySlot)
 {
-	HN_Logger::LogInfo("Player %d requests drop of inventory slot %d.", playerID,
-			inventorySlot);
+	HN_Logger::LogInfo("Player %d requests drop of inventory slot %d.",
+			playerID, inventorySlot);
 	m_player[playerID]->Drop(desc, inventorySlot);
 	ClientTurn();
 }

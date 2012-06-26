@@ -3,16 +3,19 @@
 
 #include "ENT_Base.h"
 
-class entHuman : public entBase
+class entHuman: public entBase
 {
 	static const char *s_name;
 public:
-				entHuman( const hnPoint &, hnPlayer *player = NULL );
-	virtual			~entHuman();
-	
-	virtual const char *	GetName() { return s_name; }
-	
-	virtual void		Think(); 			// Called to decide what to do each turn.
+	entHuman(const hnPoint &, hnPlayer *player = NULL);
+	virtual ~entHuman();
+
+	virtual const char * GetName()
+	{
+		return s_name;
+	}
+
+	virtual void Think(); // Called to decide what to do each turn.
 };
 
 #endif // __ENT_GRIDBUG_H__

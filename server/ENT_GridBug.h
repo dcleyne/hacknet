@@ -3,17 +3,20 @@
 
 #include "ENT_Base.h"
 
-class entGridBug : public entBase
+class entGridBug: public entBase
 {
-	static const char	*s_name;
+	static const char *s_name;
 public:
-				entGridBug( const hnPoint &, hnPlayer * player = NULL );
-	virtual			~entGridBug();
-	
-	virtual const char *	GetName() { return s_name; }
-	
-	virtual void		Think(); 			// Called to decide what to do each turn.
-	virtual bool		IsValidMove( hnDirection dir );
+	entGridBug(const hnPoint &, hnPlayer * player = NULL);
+	virtual ~entGridBug();
+
+	virtual const char * GetName()
+	{
+		return s_name;
+	}
+
+	virtual void Think(); // Called to decide what to do each turn.
+	virtual bool IsValidMove(hnDirection dir);
 };
 
 #endif // __ENT_GRIDBUG_H__

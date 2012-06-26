@@ -3,17 +3,17 @@
 
 #include "OBJ_Base.h"
 
-class objWeapon : public objBase
+class objWeapon: public objBase
 {
-	sint8			m_enchantment;
+	sint8 m_enchantment;
 public:
-				objWeapon( uint32 type );
-	virtual		 	~objWeapon();
+	objWeapon(uint32 type);
+	virtual ~objWeapon();
 
-	virtual bool		SetWieldedPrimary(bool);
-	virtual bool		SetWieldedSecondary(bool);
+	virtual bool SetWieldedPrimary(bool);
+	virtual bool SetWieldedSecondary(bool);
 
-	virtual sint16		RollDamage( entBase *foe );
+	virtual sint16 RollDamage(entBase *foe);
 };
 
 #endif // __OBJ_LONGSWORD_H__

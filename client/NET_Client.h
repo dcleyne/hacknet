@@ -12,60 +12,58 @@ class netMetaPacket;
 struct objDescription;
 struct sockaddr_in;
 
-
 #define MAX_BUFFER_SIZE (128)
 
 class netClient
 {
-	hnDisplay *	m_display;
-	int		m_socket;
-	sockaddr_in *	m_serverAddress;
-	
-	netMetaPacket *	m_packet;
-	char		m_buffer[MAX_BUFFER_SIZE];
-	
-	bool		m_done;
+	hnDisplay * m_display;
+	int m_socket;
+	sockaddr_in * m_serverAddress;
+
+	netMetaPacket * m_packet;
+	char m_buffer[MAX_BUFFER_SIZE];
+
+	bool m_done;
 protected:
-	
-	void		cleanexit(int id);  // wrapper for 'exit()' to be sure our display has a chance to clean up after itself.
-	void		StartClient(char * serverAddress);
-	
+
+	void cleanexit(int id); // wrapper for 'exit()' to be sure our display has a chance to clean up after itself.
+	void StartClient(char * serverAddress);
+
 public:
-			netClient(hnDisplay *display, char * serverAddress);
-			~netClient();
-	
-	void		Disconnect();
-	
-	void		StartMetaPacket();
-	void		TransmitMetaPacket();
-	
-	void		Go();
-	
+	netClient(hnDisplay *display, char * serverAddress);
+	~netClient();
+
+	void Disconnect();
+
+	void StartMetaPacket();
+	void TransmitMetaPacket();
+
+	void Go();
+
 	/*
 	 *
 	 * Functions to communicate to the server
 	 *
 	 */
-	
+
 	// --------  PLAYER COMMANDS ----------
-	
-	void		SendMove( hnDirection whichWay );
-	void		SendAttack( hnDirection whichWay );
-	void		SendWait( );
-	void		SendName( char * name );
-	void		SendTalk( char * talk );
-	void		SendQuit( bool save );
-	void		SendTake( objDescription * desc, uint8 stackID );	// send description and stack ID (position in array of current location) of object(s) to pick up.  If they match on the server side too, we'll successfully pick up the objects.
-	void		SendDrop( objDescription * desc, uint8 inventoryID );
-	void		SendWield( objDescription * desc, uint8 inventoryID );
-	void		SendWear( objDescription * desc, uint8 inventoryID );
-	void		SendRemove( objDescription * desc, uint8 inventoryID );
-	void		SendQuaff( objDescription * desc, uint8 inventoryID );
-	void		SendEat( objDescription * desc, uint8 inventoryID );
-	
+	void SendMove(hnDirection whichWay);
+	void SendAttack(hnDirection whichWay);
+	void SendWait();
+	void SendName(char * name);
+	void SendTalk(char * talk);
+	void SendQuit(bool save);
+	void SendTake(objDescription * desc, uint8 stackID); // send description and stack ID (position in array of current location) of object(s) to pick up.  If they match on the server side too, we'll successfully pick up the objects.
+	void SendDrop(objDescription * desc, uint8 inventoryID);
+	void SendWield(objDescription * desc, uint8 inventoryID);
+	void SendWear(objDescription * desc, uint8 inventoryID);
+	void SendRemove(objDescription * desc, uint8 inventoryID);
+	void SendQuaff(objDescription * desc, uint8 inventoryID);
+	void SendEat(objDescription * desc, uint8 inventoryID);
+
 	// --------  MAINTENANCE REQUESTS  ----------
 
-	void		SendRefreshRequest( sint8 level );
+	void SendRefreshRequest(sint8 level);
 };
 
 #endif	//__HN_NETCLIENT_H__

@@ -3,22 +3,22 @@
 
 #include "MAP_Base.h"
 
-class mapCavern : public mapBase
+class mapCavern: public mapBase
 {
 	//-----------------------------------------------------
 	//  Cavernous level generation
 	//-----------------------------------------------------
-	void			Randomise();
-	void			HighPassOne();
-	void			HighPassTwo();
-	void			HighPassThree();
-	void			Wallify();
-	
-public:
-				mapCavern( uint8 width, uint8 height, uint8 depth );
-	virtual			~mapCavern();
+	void Randomise();
+	void HighPassOne();
+	void HighPassTwo();
+	void HighPassThree();
+	void Wallify();
 
-	virtual void		Generate();
+public:
+	mapCavern(uint8 width, uint8 height, uint8 depth);
+	virtual ~mapCavern();
+
+	virtual void Generate();
 };
 
 #endif // __HN_CAVERN_MAP_H__

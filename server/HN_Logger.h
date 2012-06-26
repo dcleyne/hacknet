@@ -24,14 +24,7 @@ class HN_Logger
 public:
 	enum LogLevel
 	{
-		DEBUG,
-		INFO,
-		NOTICE,
-		WARNING,
-		ERROR,
-		CRITICAL,
-		ALERT,
-		EMERGENCY
+		DEBUG, INFO, NOTICE, WARNING, ERROR, CRITICAL, ALERT, EMERGENCY
 	};
 
 	virtual ~HN_Logger();

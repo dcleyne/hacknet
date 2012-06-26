@@ -6,26 +6,27 @@
 #include <stdio.h>
 #include <assert.h>
 
-objFood::objFood(uint32 id) : 
-	objBase(id)
+objFood::objFood(uint32 id) :
+		objBase(id)
 {
-	m_flags |= FLAG_Eatable;	// set us as eatable.
+	m_flags |= FLAG_Eatable; // set us as eatable.
 }
 
 objFood::~objFood()
 {
 }
 
-bool
-objFood::Eat(entBase *entity, hnPlayer *player)
+bool objFood::Eat(entBase *entity, hnPlayer *player)
 {
-	assert(entity);		// _somebody_ must be eating me!
+	assert(entity);
+	// _somebody_ must be eating me!
 
-	const objPrototype &proto = objManager::GetInstance()->GetPrototype( GetItemID() );
+	const objPrototype &proto = objManager::GetInstance()->GetPrototype(
+			GetItemID());
 
 	// we should now add prototype.nutrition to the entity's eat.
-	
-	entity->DoEat( proto.nutrition );
+
+	entity->DoEat(proto.nutrition);
 
 	return true;
 }

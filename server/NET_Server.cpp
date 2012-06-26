@@ -19,7 +19,6 @@
 #include "OBJ_Base.h"
 #include "HN_Logger.h"
 
-
 #define HACKNET_PORT 		(9274)
 #define MAX_CONNECTIONS		(16)
 
@@ -207,13 +206,17 @@ void netServer::Go()
 					char * packetSizeBufferPointer =
 							(char *) &m_client[i].incomingPacketSizeBuffer;
 
-					HN_Logger::LogDebug("Waiting for %d bytes of packet size data.", m_client[i].incomingPacketSizeSize);
+					HN_Logger::LogDebug(
+							"Waiting for %d bytes of packet size data.",
+							m_client[i].incomingPacketSizeSize);
 
 					int bytesRead = recv(m_client[i].socket,
 							packetSizeBufferPointer,
 							m_client[i].incomingPacketSizeSize, 0); // first a short saying how many bytes of data are coming..
 
-					HN_Logger::LogDebug("Received %d bytes of packet size data.", bytesRead);
+					HN_Logger::LogDebug(
+							"Received %d bytes of packet size data.",
+							bytesRead);
 					packetSizeBufferPointer += bytesRead;
 					m_client[i].incomingPacketSizeSize -= bytesRead;
 
@@ -222,7 +225,9 @@ void netServer::Go()
 						m_client[i].packetFullSize =
 								m_client[i].incomingPacketSize =
 										ntohs( m_client[i].incomingPacketSizeBuffer );
-						HN_Logger::LogDebug("We're going to wait for %d bytes of data in total.",m_client[i].incomingPacketSize);
+						HN_Logger::LogDebug(
+								"We're going to wait for %d bytes of data in total.",
+								m_client[i].incomingPacketSize);
 						m_client[i].incomingPacketSizeSize = 0;
 
 						if (m_client[i].incomingPacketSize
@@ -239,7 +244,8 @@ void netServer::Go()
 				else
 				{
 
-					HN_Logger::LogDebug("Waiting for %d bytes of packet data.", m_client[i].incomingPacketSize);
+					HN_Logger::LogDebug("Waiting for %d bytes of packet data.",
+							m_client[i].incomingPacketSize);
 					int numBytesReceived = recv(m_client[i].socket,
 							m_client[i].packetRecv,
 							m_client[i].incomingPacketSize, 0);
@@ -249,7 +255,8 @@ void netServer::Go()
 						HN_Logger::LogInfo("  Error:  recv returned %d!",
 								numBytesReceived);
 						// aiee!  Illegal packet!  Kill the client!
-						HN_Logger::LogInfo("  Error receiving packet!  Killing client.");
+						HN_Logger::LogInfo(
+								"  Error receiving packet!  Killing client.");
 						SendBadPacketNotice(i);
 						DisconnectClientID(i);
 					}
@@ -265,9 +272,10 @@ void netServer::Go()
 							assert(m_client[i].incomingPacketSize == 0);
 							m_client[i].incomingPacketSize = 0;
 							m_client[i].packetRecv = m_client[i].packet;
-#ifdef __DEBUG_NETWORKING__
-							HN_Logger::LogDebug("  Received %d byte packet from %s (client id %d).", m_client[i].packetFullSize, m_game->GetPlayerName(i), i);
-#endif
+							HN_Logger::LogDebug(
+									"  Received %d byte packet from %s (client id %d).",
+									m_client[i].packetFullSize,
+									m_game->GetPlayerName(i), i);
 							if (!ProcessClientPacket(i, m_client[i].packet,
 									m_client[i].packetFullSize))
 							{
@@ -362,12 +370,13 @@ bool netServer::ProcessClientPacket(int clientID, char *buffer,
 		case CPT_Name:
 			okay = packet->ClientName(localbuffer, bufferSize);
 			m_game->ClientName(clientID, localbuffer, bufferSize);
-			HN_Logger::LogInfo("Client %d calls himself %s", clientID, localbuffer);
+			HN_Logger::LogInfo("Client %d calls himself %s", clientID,
+					localbuffer);
 			break;
 		case CPT_RequestRefresh:
 			okay = packet->ClientRequestRefresh(level);
-			HN_Logger::LogInfo("Client %d requests refresh of level %d.", clientID,
-					level);
+			HN_Logger::LogInfo("Client %d requests refresh of level %d.",
+					clientID, level);
 			m_game->ClientRequestRefresh(clientID, level);
 			break;
 		case CPT_Save: // no saving code yet -- just quit.
@@ -384,7 +393,8 @@ bool netServer::ProcessClientPacket(int clientID, char *buffer,
 			break;
 		default:
 			okay = false;
-			HN_Logger::LogInfo("Received unknown packet type %d from %s (id %d).", type,
+			HN_Logger::LogInfo(
+					"Received unknown packet type %d from %s (id %d).", type,
 					m_game->GetPlayerName(clientID), clientID);
 			break;
 		}
@@ -531,7 +541,7 @@ void netServer::SendObjectName(uint16 objectID, uint16 type, const char * name)
 	sint16 messageLength = strlen(name);
 	char* tmpname = new char[messageLength];
 	strncpy(tmpname, name, messageLength);
-	tmpname[messageLength-1] = '\0';
+	tmpname[messageLength - 1] = '\0';
 	m_metaPacket->ObjectName(objectID, type, tmpname, messageLength);
 	delete tmpname;
 }
@@ -588,10 +598,9 @@ bool netServer::TransmitMetaPacket()
 			// here we go -- send our netMetaPacket to the given client!
 			short metapacketdatalength = htons(m_metaPacket->GetBufferLength());
 
-#ifdef __DEBUG_NETWORKING__
-			HN_Logger::LogDebug("Sending %ld byte metapacket to %s (id %d)...", m_metaPacket->GetBufferLength(),
+			HN_Logger::LogDebug("Sending %ld byte metapacket to %s (id %d)...",
+					m_metaPacket->GetBufferLength(),
 					m_game->GetPlayerName(m_packetClientID), m_packetClientID);
-#endif
 
 			if (send(m_client[m_packetClientID].socket, &metapacketdatalength,
 					sizeof(sint16), 0) == -1)

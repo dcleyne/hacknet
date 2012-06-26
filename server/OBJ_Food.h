@@ -3,13 +3,13 @@
 
 #include "OBJ_Base.h"
 
-class objFood : public objBase
+class objFood: public objBase
 {
 public:
-			objFood(uint32 id);
-			~objFood();
-	
-	virtual bool	Eat( entBase *entity, hnPlayer *player );
+	objFood(uint32 id);
+	~objFood();
+
+	virtual bool Eat(entBase *entity, hnPlayer *player);
 };
 
 #endif // OBJ_AMULET_H

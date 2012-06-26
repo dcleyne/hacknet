@@ -31,14 +31,15 @@ HN_Logger::~HN_Logger()
 
 void HN_Logger::SetLogFile(std::string logFileName)
 {
-	log4cpp::Appender* appender = new log4cpp::FileAppender("FileAppender",logFileName,false);
+	log4cpp::Appender* appender = new log4cpp::FileAppender("FileAppender",
+			logFileName, false);
 	log4cpp::Layout* layout = new log4cpp::BasicLayout();
 
 	appender->setLayout(layout);
 	log4cpp::Category &log_root = log4cpp::Category::getRoot();
 	log_root.setAppender(appender);
 
-	appender = new log4cpp::OstreamAppender("stdout",&std::cout);
+	appender = new log4cpp::OstreamAppender("stdout", &std::cout);
 	layout = new log4cpp::BasicLayout();
 	appender->setLayout(layout);
 	log_root.setAppender(appender);
@@ -49,33 +50,32 @@ void HN_Logger::SetLogLevel(LogLevel level)
 	log4cpp::Category &log_root = log4cpp::Category::getRoot();
 	switch (level)
 	{
-		case DEBUG:
-			log_root.setPriority(log4cpp::Priority::DEBUG);
-			break;
-		case INFO:
-			log_root.setPriority(log4cpp::Priority::INFO);
-			break;
-		case NOTICE:
-			log_root.setPriority(log4cpp::Priority::NOTICE);
-			break;
-		case WARNING:
-			log_root.setPriority(log4cpp::Priority::WARN);
-			break;
-		case ERROR:
-			log_root.setPriority(log4cpp::Priority::ERROR);
-			break;
-		case CRITICAL:
-			log_root.setPriority(log4cpp::Priority::CRIT);
-			break;
-		case ALERT:
-			log_root.setPriority(log4cpp::Priority::ALERT);
-			break;
-		case EMERGENCY:
-			log_root.setPriority(log4cpp::Priority::EMERG);
-			break;
+	case DEBUG:
+		log_root.setPriority(log4cpp::Priority::DEBUG);
+		break;
+	case INFO:
+		log_root.setPriority(log4cpp::Priority::INFO);
+		break;
+	case NOTICE:
+		log_root.setPriority(log4cpp::Priority::NOTICE);
+		break;
+	case WARNING:
+		log_root.setPriority(log4cpp::Priority::WARN);
+		break;
+	case ERROR:
+		log_root.setPriority(log4cpp::Priority::ERROR);
+		break;
+	case CRITICAL:
+		log_root.setPriority(log4cpp::Priority::CRIT);
+		break;
+	case ALERT:
+		log_root.setPriority(log4cpp::Priority::ALERT);
+		break;
+	case EMERGENCY:
+		log_root.setPriority(log4cpp::Priority::EMERG);
+		break;
 	}
 }
-
 
 HN_Logger* HN_Logger::GetInstance()
 {

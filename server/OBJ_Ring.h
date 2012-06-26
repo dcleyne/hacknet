@@ -3,13 +3,13 @@
 
 #include "OBJ_Base.h"
 
-class objRing : public objBase
+class objRing: public objBase
 {
 public:
-			objRing(uint32 id);
-			~objRing();
+	objRing(uint32 id);
+	~objRing();
 
-	virtual bool	SetWorn(bool);
+	virtual bool SetWorn(bool);
 };
 
 #endif // OBJ_AMULET_H
