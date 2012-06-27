@@ -381,16 +381,14 @@ bool netServer::ProcessClientPacket(int clientID, char *buffer,
 			break;
 		case CPT_Save: // no saving code yet -- just quit.
 			okay = packet->ClientSave();
-			SendQuitConfirm(clientID);
-			DisconnectClientID(clientID);
-			HN_Logger::LogInfo("Disconnected client %d.", clientID);
+			SendSaveConfirm(clientID);
+			HN_Logger::LogInfo("Save and quit client %d.", clientID);
 			m_game->SaveGame();
 			break;
 		case CPT_Quit:
 			okay = packet->ClientQuit();
 			SendQuitConfirm(clientID);
-			DisconnectClientID(clientID);
-			HN_Logger::LogInfo("Disconnected client %d.", clientID);
+			HN_Logger::LogInfo("Quit client %d.", clientID);
 			break;
 		default:
 			okay = false;
@@ -551,6 +549,13 @@ void netServer::SendQuitConfirm(int clientID)
 {
 	StartMetaPacket(clientID);
 	m_metaPacket->QuitConfirm();
+	TransmitMetaPacket();
+}
+
+void netServer::SendSaveConfirm(int clientID)
+{
+	StartMetaPacket(clientID);
+	m_metaPacket->SaveConfirm();
 	TransmitMetaPacket();
 }
 

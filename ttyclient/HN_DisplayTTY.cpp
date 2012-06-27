@@ -74,12 +74,16 @@ m_done(false)
 
 hnDisplayTTY::~hnDisplayTTY()
 {
-#ifndef __DEBUGGING_NETWORK__
 	refresh();
 	endwin();
-#endif
 
 	// put any debugging output here, if needed -- curses has been shut down and printf is safe again.
+
+	// Chuck out the last message onto the terminal, it should be something like "Quit" or "Quit and Saved"
+	if (m_messageDisplayLine < m_messageLines)
+	{
+		printf("%s\n", m_messageBuffer[m_messageDisplayLine]);
+	}
 }
 
 bool hnDisplayTTY::Go()
@@ -93,7 +97,14 @@ bool hnDisplayTTY::Go()
 	return 0;
 }
 
-void * StartEventLoop(void *arg)
+bool hnDisplayTTY::Stop()
+{
+	m_done = true;
+
+	return 0;
+}
+
+void* StartEventLoop(void *arg)
 {
 	hnDisplayTTY *display = (hnDisplayTTY *) arg;
 
@@ -136,8 +147,6 @@ void hnDisplayTTY::EventLoop()
 		}
 		Refresh();
 	}
-
-	m_client->Disconnect();
 }
 
 void hnDisplayTTY::HandleKeypressNormal(int commandkey)
@@ -159,11 +168,11 @@ void hnDisplayTTY::HandleKeypressNormal(int commandkey)
 		break;
 	case 'Q':
 		m_client->SendQuit(false);
-		m_done = true;
+//		m_done = true;
 		break;
 	case 'S':
 		m_client->SendQuit(true);
-		m_done = true;
+//		m_done = true;
 		break;
 	case '"':
 		m_mode = MODE_Talking;
@@ -806,7 +815,7 @@ void hnDisplayTTY::Refresh()
 {
 	pthread_mutex_lock(&refresh_mutex);
 
-	if (m_needsRefresh)
+	if (m_needsRefresh && !m_done)
 	{
 		hnDisplay::Refresh();
 #ifndef __DEBUGGING_NETWORK__
@@ -926,7 +935,8 @@ void hnDisplayTTY::Refresh()
 			DrawObjectArray(tile.object, tile.objectCount, false);
 		}
 
-		refresh();
+		if (!isendwin())
+			refresh();
 #endif
 		m_needsRefresh = false;
 	}

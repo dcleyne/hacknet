@@ -98,6 +98,7 @@ public:
 	void SendWieldedItem(const objDescription & object, int inventorySlot);
 
 	void SendQuitConfirm(int clientID); // doesn't require a metapacket
+	void SendSaveConfirm(int clientID); // doesn't require a metapacket
 	void SendBadPacketNotice(int clientID); // doesn't require a metapacket
 };
 

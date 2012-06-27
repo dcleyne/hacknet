@@ -41,6 +41,7 @@ public:
 	virtual bool Go() = 0; // main event loop goes in here.  Return
 	// true if we're alive and saving, false
 	// if otherwise.
+	virtual bool Stop() = 0; // terminate the main run loop and clean up
 
 	bool isMapReady(int mapID)
 	{

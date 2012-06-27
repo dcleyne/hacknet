@@ -288,13 +288,18 @@ void netClient::Go()
 			case SPT_BadPacketNotice:
 				packet->BadPacketNotice();
 				delete m_display;
-				printf(
-						"Server killed us for sending an unknown packet.  Version mismatch?\n");
+				printf("Server killed us for sending an unknown packet.  Version mismatch?\n");
 				m_done = true;
 				//exit(1);
 				break;
+			case SPT_SaveConfirm:
+				packet->SaveConfirm();
+				m_display->TextMessage("Game has been saved and you have Quit\n");
+				m_done = true;
+				break;
 			case SPT_QuitConfirm:
 				packet->QuitConfirm();
+				m_display->TextMessage("You have Quit!\n");
 				m_done = true;
 				break;
 			default:
@@ -302,6 +307,7 @@ void netClient::Go()
 				break;
 			}
 		}
+
 		m_display->Refresh(); // do a screen refresh if we need it.
 	}
 	close(m_socket);
@@ -332,6 +338,7 @@ void netClient::TransmitMetaPacket()
 
 void netClient::SendQuit(bool save)
 {
+	printf("sending quit(%i)...\n", save);
 	StartMetaPacket();
 	if (save)
 		m_packet->ClientSave();
@@ -473,12 +480,13 @@ void netClient::SendEat(objDescription *object, uint8 inventoryID)
 
 void netClient::Disconnect()
 {
-	//printf("Disconnecting...\n");
 	m_done = true;
 }
 
 void netClient::cleanexit(int id)
 {
-	delete m_display;
+	if (m_display)
+		delete m_display;
+
 	exit(id);
 }
