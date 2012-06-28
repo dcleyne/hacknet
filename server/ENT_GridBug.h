@@ -2,6 +2,7 @@
 #define __ENT_GRIDBUG_H__
 
 #include "ENT_Base.h"
+#include "ENT_Types.h"
 
 class entGridBug: public entBase
 {

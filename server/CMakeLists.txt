@@ -40,6 +40,7 @@ set(SOURCES
     HN_Properties.h
     HN_Logger.h
     HN_Logger.cpp
+    HN_Convert.h
     NET_Server.cpp
     NET_Server.h
     MAP_Base.cpp

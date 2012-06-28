@@ -1,5 +1,6 @@
 #include "OBJ_Definition.h"
 #include "OBJ_Convert.h"
+#include "HN_Convert.h"
 
 #define OBJECT(obj,bits,prop,type,prob,delay,weight,cost,sdam,ldam,oc1,oc2,nut,color) \
 	{obj,bits,prop,type,delay,COLOR_FIELD(color), \

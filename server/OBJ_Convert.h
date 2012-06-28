@@ -8,6 +8,7 @@
 #include "OBJ_Types.h"
 #include "OBJ_Definition.h"
 #include "HN_Properties.h"
+#include "HN_Color.h"
 
 /* Skills */
 
@@ -103,24 +104,6 @@
 #define HI_GLASS	MAT_Glass
 #define HI_ORGANIC	MAT_Organic
 #define HI_PAPER	MAT_Paper
-
-/*  Colors */
-
-#define CLR_BLACK       	COLOR_Black
-#define CLR_WHITE       	COLOR_White
-#define CLR_BROWN       	COLOR_Brown
-#define CLR_GREEN		COLOR_Green
-#define CLR_RED			COLOR_Red
-#define CLR_BLUE		COLOR_Blue
-#define CLR_MAGENTA		COLOR_Magenta
-#define CLR_BRIGHT_MAGENTA	COLOR_Magenta
-#define CLR_GRAY		COLOR_Gray
-#define CLR_YELLOW		COLOR_Yellow
-#define CLR_ORANGE		COLOR_Orange
-#define CLR_CYAN		COLOR_Cyan
-#define CLR_BRIGHT_GREEN	COLOR_BrightGreen
-#define CLR_BRIGHT_CYAN		COLOR_BrightCyan
-#define CLR_BRIGHT_BLUE		COLOR_BrightBlue
 
 /* Properties */
 

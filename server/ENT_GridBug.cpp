@@ -5,7 +5,7 @@
 const char * entGridBug::s_name = "grid bug";
 
 entGridBug::entGridBug(const hnPoint & where, hnPlayer *player) :
-		entBase(ENTITY_GridBug, where, player)
+		entBase(Entity_Xan, where, player)
 {
 	// gridbugs have 1 or 2 hit points.
 	int points = hnRandom::GetInstance()->GetAndAdd(2, 1);
