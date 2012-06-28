@@ -538,9 +538,10 @@ void netServer::SendObjectStats(uint16 objectCount)
 void netServer::SendObjectName(uint16 objectID, uint16 type, const char * name)
 {
 	sint16 messageLength = strlen(name);
-	char* tmpname = new char[messageLength];
+	char* tmpname = new char[messageLength + 1];
 	strncpy(tmpname, name, messageLength);
-	tmpname[messageLength - 1] = '\0';
+	tmpname[messageLength] = '\0';
+	HN_Logger::LogInfo("Object Name (%s)", tmpname);
 	m_metaPacket->ObjectName(objectID, type, tmpname, messageLength);
 	delete tmpname;
 }
