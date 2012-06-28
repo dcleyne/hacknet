@@ -289,7 +289,7 @@ void hnDisplay::MoveCommand(hnDirection dir)
 
 		if (map
 				&& map->MapTile(proposedSquare.x, proposedSquare.y).entity
-						!= ENTITY_None)
+						!= Entity_None)
 			attackInstead = true;
 	}
 	if (attackInstead)
