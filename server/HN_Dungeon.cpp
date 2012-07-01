@@ -1,9 +1,13 @@
+#include "assert.h"
+#include <iostream>
+#include <fstream>
+#include <boost/filesystem.hpp>
+
 #include "HN_Types.h"
 #include "MAP_Base.h"
 #include "MAP_Hack.h"
 #include "HN_Dungeon.h"
-
-#include "assert.h"
+#include "HN_Logger.h"
 
 hnDungeon * hnDungeon::s_instance = NULL;
 
@@ -72,5 +76,26 @@ hnDungeon* hnDungeon::GetInstance()
 
 void hnDungeon::SaveDungeon(std::string path)
 {
+	std::string dungeonFile(path + "/dungeon");
+
+	// If there is already a file in place, get rid of it.
+	if (boost::filesystem::exists(dungeonFile))
+	{
+		boost::filesystem::remove(dungeonFile);
+	}
+
+	std::ofstream dungeonStream;
+	dungeonStream.open(dungeonFile.c_str(), std::ios_base::out | std::ios_base::app);
+	if (dungeonStream.is_open())
+	{
+		dungeonStream << "This is some text" << std::endl;
+
+
+		dungeonStream.close();
+	}
+	else
+	{
+		HN_Logger::LogError("Failed to write dungeon to file %s.", dungeonFile.c_str());
+	}
 
 }
